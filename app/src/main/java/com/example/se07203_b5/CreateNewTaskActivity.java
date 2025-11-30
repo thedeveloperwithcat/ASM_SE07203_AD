@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-
+import java.util.Calendar;
 public class CreateNewTaskActivity extends AppCompatActivity {
 
     Button btnSubmitCreate, btnBackToMain;
@@ -89,6 +89,7 @@ public class CreateNewTaskActivity extends AppCompatActivity {
         finish();
     }
 
+    // Trong CreateNewTaskActivity.java
     private void createNewItem(){
         String itemName = edtItemName.getText().toString();
         int quantity = 0, unitPrice = 0;
@@ -108,13 +109,29 @@ public class CreateNewTaskActivity extends AppCompatActivity {
             DatabaseHelper databaseHelper = new DatabaseHelper(this);
             long userId = sharedPreferences.getLong("user_id", -1);
             if (userId > 0){
-                long resultId = databaseHelper.addProduct(item, userId);
-                if (resultId <= 0){
+                // 1. Thêm sản phẩm vào bảng products
+                long resultProductId = databaseHelper.addProduct(item, userId); // resultId ở đây là ProductId
+                if (resultProductId <= 0){
                     Toast.makeText(this, "Error add product (item) to database", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                // 2. Ghi log giao dịch vào bảng monthly_purchases
+                Calendar calendar = Calendar.getInstance();
+                int month = calendar.get(Calendar.MONTH) + 1; // Tháng (0-11, nên +1)
+                int year = calendar.get(Calendar.YEAR);
+                int totalPrice = quantity * unitPrice;
+
+                long resultLogId = databaseHelper.addMonthlyPurchase(
+                        resultProductId, month, year, quantity, totalPrice, userId);
+
+                if (resultLogId <= 0) {
+                    Toast.makeText(this, "Error logging monthly purchase", Toast.LENGTH_SHORT).show();
+                    // Dù thêm sản phẩm thành công, log thất bại thì vẫn tiếp tục
+                }
+
                 AppData.ListItem.add(item);
-                Toast.makeText(this, "Add product successfully (Id = " + resultId + ")", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Add product successfully (Id = " + resultProductId + ")", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
             }else{
