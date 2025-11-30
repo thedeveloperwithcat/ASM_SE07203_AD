@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,6 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".MonthlyPurchasesActivity">
 
+    <!-- Báo cáo chi tiêu hàng tháng -->
     <TextView
         android:id="@+id/tvMonthlyReportTitle"
         android:layout_width="wrap_content"
@@ -14,10 +16,9 @@
         android:text="BÁO CÁO CHI TIÊU HÀNG THÁNG"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.05" />
 
     <TextView
@@ -30,9 +31,9 @@
         android:text="Tổng chi tiêu tháng (MM/YYYY): 0 VNĐ"
         android:textSize="20sp"
         android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvMonthlyReportTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvMonthlyReportTitle" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvDetailsTitle"
@@ -54,8 +55,87 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginHorizontal="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvDetailsTitle"
+        app:layout_constraintBottom_toTopOf="@id/formTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvDetailsTitle" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Form nhập liệu sản phẩm -->
+    <TextView
+        android:id="@+id/formTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nhập thông tin sản phẩm"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/lvMonthlyPurchases"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextProduct"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Sản phẩm"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/formTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextMonth"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Tháng"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/editTextProduct"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextYear"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Năm"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/editTextMonth"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextQuantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Số lượng"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/editTextYear"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextPrice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Giá tiền (VNĐ)"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/editTextQuantity"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnAddProduct"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thêm sản phẩm"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/editTextPrice"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
