@@ -2,7 +2,6 @@ package com.example.se07203_b5;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -10,7 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "SE07203Expense";
@@ -170,6 +168,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
         db.close(); // close connection với databasse
         return result > 0; // result là số lượng record được xóa lớn hơn 0 tức là thành công
+    }
+    // Trong class DatabaseHelper.java
+    public long addMonthlyPurchase(long productId, int month, int year, int quantity, int totalPrice, long userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(TABLE_MONTHLY_COLUMN_PRODUCT_ID, productId);
+        values.put(TABLE_MONTHLY_COLUMN_MONTH, month);
+        values.put(TABLE_MONTHLY_COLUMN_YEAR, year);
+        values.put(TABLE_MONTHLY_COLUMN_QUANTITY, quantity);
+        values.put(TABLE_MONTHLY_COLUMN_TOTAL_PRICE, totalPrice);
+        values.put(TABLE_MONTHLY_COLUMN_USER_ID, userId);
+        long id = db.insert(TABLE_MONTHLY, null, values);
+        db.close();
+        return id;
+    }
 
+    // Trong class DatabaseHelper.java
+    public ArrayList<MonthlyPurchase> getMonthlyPurchases(long UserId, int month, int year){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<MonthlyPurchase> monthlyItems = new ArrayList<>();
+
+        String query = "SELECT T1." + TABLE_MONTHLY_COLUMN_ID + ", " +
+                "T1." + TABLE_MONTHLY_COLUMN_PRODUCT_ID + ", " +
+                "T1." + TABLE_MONTHLY_COLUMN_MONTH + ", " +
+                "T1." + TABLE_MONTHLY_COLUMN_YEAR + ", " +
+                "T1." + TABLE_MONTHLY_COLUMN_QUANTITY + ", " +
+                "T1." + TABLE_MONTHLY_COLUMN_TOTAL_PRICE + ", " +
+                "T2." + TABLE_PRODUCT_COLUMN_NAME +
+                " FROM " + TABLE_MONTHLY + " T1 " +
+                " INNER JOIN " + TABLE_PRODUCT + " T2 ON T1." + TABLE_MONTHLY_COLUMN_PRODUCT_ID + " = T2." + TABLE_PRODUCT_COLUMN_ID +
+                " WHERE T1." + TABLE_MONTHLY_COLUMN_USER_ID + " = ? AND T1." + TABLE_MONTHLY_COLUMN_MONTH + " = ? AND T1." + TABLE_MONTHLY_COLUMN_YEAR + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(UserId), String.valueOf(month), String.valueOf(year)});
+
+        if (cursor.moveToFirst()) {
+            do {
+                MonthlyPurchase item = new MonthlyPurchase(
+                        cursor.getLong(0), // id Monthly
+                        cursor.getLong(1), // product_id
+                        cursor.getInt(2), // month
+                        cursor.getInt(3), // year
+                        cursor.getInt(4), // quantity
+                        cursor.getInt(5), // total_price
+                        cursor.getString(6) // product_name
+                );
+                monthlyItems.add(item);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return monthlyItems;
     }
 }

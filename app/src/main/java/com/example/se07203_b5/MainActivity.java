@@ -20,7 +20,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnCreate, btnLogout;
+    Button btnCreate, btnLogout, btnViewReport;
     ListView lvListItem;
     int count = 0;
     TextView tvListTitle, tvReport; // khai báo TextView để hiển thị tiêu đề danh sách task
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         tvListTitle = findViewById(R.id.tvListTitle); // liên kết với id tvListTitle trong layout
         tvReport = findViewById(R.id.tvReport);
         dbHelper = new DatabaseHelper(this); // Khởi tạo kết nối database
+        btnViewReport = findViewById(R.id.btnViewReport); // ÁNH XẠ NÚT
 
         long userId = sharedPreferences.getLong("user_id", 0);
 
@@ -66,6 +67,11 @@ public class MainActivity extends AppCompatActivity {
         btnCreate.setOnClickListener(v -> {
             // Khai báo Intent để chuyển sang CreateNewTaskActivity (di chuyển từ activity MainActivity sang activity CreateNewTaskActivity)
             Intent intent = new Intent(MainActivity.this, CreateNewTaskActivity.class);
+            startActivity(intent);
+        });
+        // XỬ LÝ SỰ KIỆN CHO NÚT BÁO CÁO
+        btnViewReport.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MonthlyPurchasesActivity.class);
             startActivity(intent);
         });
 
