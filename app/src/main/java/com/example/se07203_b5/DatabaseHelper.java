@@ -14,9 +14,20 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "SE07203Expense";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     //    Table User
+
+    // Bảng lưu mua theo tháng
+    private static final String TABLE_MONTHLY = "monthly_purchases";
+    private static final String TABLE_MONTHLY_COLUMN_ID = "id";
+    private static final String TABLE_MONTHLY_COLUMN_PRODUCT_ID = "product_id";
+    private static final String TABLE_MONTHLY_COLUMN_MONTH = "month";
+    private static final String TABLE_MONTHLY_COLUMN_YEAR = "year";
+    private static final String TABLE_MONTHLY_COLUMN_QUANTITY = "quantity";
+    private static final String TABLE_MONTHLY_COLUMN_TOTAL_PRICE = "total_price";
+    private static final String TABLE_MONTHLY_COLUMN_USER_ID = "user_id";
+
     private static final String TABLE_USER = "users";
     private static final String TABLE_USER_COLUMN_ID = "id";
     private static final String TABLE_USER_COLUMN_USERNAME = "username";
@@ -37,6 +48,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MONTHLY);
+
+
         String CREATE_TABLE_USERS = "CREATE TABLE " + TABLE_USER + "("
                 + TABLE_USER_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + TABLE_USER_COLUMN_USERNAME + " TEXT, "
@@ -51,6 +67,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + TABLE_PRODUCT_COLUMN_QUANTITY + " INTEGER, "
                 + TABLE_PRODUCT_COLUMN_USER_ID + " INTEGER);";
         db.execSQL(CREATE_TABLE_PRODUCTS);
+
+        String CREATE_TABLE_MONTHLY = "CREATE TABLE " + TABLE_MONTHLY + "("
+                + TABLE_MONTHLY_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + TABLE_MONTHLY_COLUMN_PRODUCT_ID + " INTEGER, "
+                + TABLE_MONTHLY_COLUMN_MONTH + " INTEGER, "
+                + TABLE_MONTHLY_COLUMN_YEAR + " INTEGER, "
+                + TABLE_MONTHLY_COLUMN_QUANTITY + " INTEGER, "
+                + TABLE_MONTHLY_COLUMN_TOTAL_PRICE + " INTEGER, "
+                + TABLE_MONTHLY_COLUMN_USER_ID + " INTEGER);";
+        db.execSQL(CREATE_TABLE_MONTHLY);
+
     }
 
     public long addProduct(Item product, long UserId) {

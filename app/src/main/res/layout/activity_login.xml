@@ -11,7 +11,7 @@
         android:id="@+id/tvLoginTitle"
         android:layout_width="296dp"
         android:layout_height="96dp"
-        android:text="Welcome to Shopping Warning"
+        android:text="Login"
         android:textAlignment="center"
         android:textSize="34sp"
         android:textStyle="bold"
