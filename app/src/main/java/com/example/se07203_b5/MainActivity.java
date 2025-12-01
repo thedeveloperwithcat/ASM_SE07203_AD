@@ -1,6 +1,5 @@
 package com.example.se07203_b5;
 
-import android.app.LauncherActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,36 +15,45 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnCreate, btnLogout;
+    Button btnCreate, btnLogout, btnBack, btnMonthlyPurchases;
     ListView lvListItem;
     int count = 0;
-    TextView tvListTitle, tvReport; // khai báo TextView để hiển thị tiêu đề danh sách task
-    ArrayAdapter<Item> adapter; // khai báo adapter - công cụ để kết nối danh sách task với ListView
+    TextView tvListTitle, tvReport;
+    ArrayAdapter<Item> adapter;
 
     DatabaseHelper dbHelper;
     SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
-        if (!sharedPreferences.getBoolean("isLogin", false)){
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-        }
-
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main); // kết nối với layout activity_main với class MainActivity
 
-        btnCreate = findViewById(R.id.btnCreate); // liên kết với id btnCreate trong layout
-        btnLogout = findViewById(R.id.btnLogout); // liên kết với id btnShow trong layout
-        lvListItem = findViewById(R.id.lvItem); // liên kết với id lvTask trong layout
-        tvListTitle = findViewById(R.id.tvListTitle); // liên kết với id tvListTitle trong layout
+        sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
+
+        // Nếu CHƯA đăng nhập thì chuyển sang LoginActivity và đóng MainActivity
+        if (!sharedPreferences.getBoolean("isLogin", false)) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // ĐÃ đăng nhập -> load giao diện chính
+        setContentView(R.layout.activity_main);
+
+        // Ánh xạ view
+        btnCreate = findViewById(R.id.btnCreate);
+        btnLogout = findViewById(R.id.btnLogout);
+        btnMonthlyPurchases = findViewById(R.id.btnMonthlyPurchases); // nút chuyển sang màn tháng
+        lvListItem = findViewById(R.id.lvItem);
+        tvListTitle = findViewById(R.id.tvListTitle);
         tvReport = findViewById(R.id.tvReport);
-        dbHelper = new DatabaseHelper(this); // Khởi tạo kết nối database
+
+        dbHelper = new DatabaseHelper(this);
 
         long userId = sharedPreferences.getLong("user_id", 0);
 
@@ -53,59 +61,68 @@ public class MainActivity extends AppCompatActivity {
         AppData.ListItem.clear();
         AppData.ListItem = _items;
 
-
-        // Khởi tạo adapter với "this" là context - chính là lớp MainActivity
-        // và android.R.layout.simple_list_item_1 là layout sẵn có trong Android (chỉ 1 dòng text)
-        // và ListItem là danh sách các task (thuộc kiểu ArrayList<Item> đã được khai báo ở trên)
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, AppData.ListItem);
-        // Đặt adapter cho ListView (lvListTask) để hiển thị danh sách các task
+        adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                AppData.ListItem
+        );
         lvListItem.setAdapter(adapter);
         showReport();
-        adapter.notifyDataSetChanged(); // thông báo cho adapter rằng dữ liệu đã thay đổi và cần cập nhật lên ListView
+        adapter.notifyDataSetChanged();
 
+        // Nút tạo item mới
         btnCreate.setOnClickListener(v -> {
-            // Khai báo Intent để chuyển sang CreateNewTaskActivity (di chuyển từ activity MainActivity sang activity CreateNewTaskActivity)
             Intent intent = new Intent(MainActivity.this, CreateNewTaskActivity.class);
             startActivity(intent);
         });
 
+        // Nút MUA THEO THÁNG -> mở activity_monthly_purchases.xml
+        btnMonthlyPurchases.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MonthlyPurchases.class);
+            startActivity(intent);
+        });
+
+        // Click vào item trong list
         lvListItem.setOnItemClickListener((parent, view, position, id) -> {
-            Toast.makeText(this, "Bạn chọn item thứ " + (position + 1) + ", món đồ " + AppData.ListItem.get(position), Toast.LENGTH_LONG).show();
+            Toast.makeText(
+                    this,
+                    "Bạn chọn item thứ " + (position + 1) + ", món đồ " + AppData.ListItem.get(position),
+                    Toast.LENGTH_LONG
+            ).show();
             showOptionsDialog(position);
         });
 
+        // Nút logout
         btnLogout.setOnClickListener(v -> {
             SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
             sharedPreferencesEditor.putBoolean("isLogin", false);
             sharedPreferencesEditor.apply();
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+            finish();
         });
     }
 
-    private void showOptionsDialog(int position){
+    private void showOptionsDialog(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Lựa chọn hành động!");
         String[] options = {"Sửa", "Xóa"};
         builder.setItems(options, (dialog, which) -> {
-            if (which == 0){ // Hành động đầu tiên trong options - "Sửa"
-                // Khai báo Intent để chuyển sang CreateNewTaskActivity (di chuyển từ activity MainActivity sang activity CreateNewTaskActivity)
+            if (which == 0) { // Sửa
                 Intent intent = new Intent(MainActivity.this, CreateNewTaskActivity.class);
-                // bổ sung thông tin về task cần sửa vào Intent, thông tin position là vị trí task trong danh sách
                 intent.putExtra("position", position);
-                // Chuyển sang activity CreateNewTaskActivity và đợi kết quả trả về
                 startActivityForResult(intent, AppData.EDIT_TASK);
-            }else{
+            } else { // Xóa
                 Item _item = AppData.ListItem.get(position);
-                long itemId = _item.getId(); // lấy giá trị ID
-                boolean result = dbHelper.removeProductById(itemId); // thực hiện xóa item khỏi database
-                if (result){ // nếu xóa thành công
-                    AppData.ListItem.remove(position); // xóa item khỏi danh sách
-                    showReport(); // cập nhật lại report
-                    adapter.notifyDataSetChanged(); // thông báo cho adapter rằng dữ liệu đã thay đổi và cần cập nhật lên ListView
+                long itemId = _item.getId();
+                boolean result = dbHelper.removeProductById(itemId);
+                if (result) {
+                    AppData.ListItem.remove(position);
+                    showReport();
+                    adapter.notifyDataSetChanged();
                     Toast.makeText(this, "Xóa thành công!", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(this, "xóa thất bại", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -116,12 +133,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AppData.EDIT_TASK && resultCode == RESULT_OK){
+        if (requestCode == AppData.EDIT_TASK && resultCode == RESULT_OK) {
             showReport();
-            adapter.notifyDataSetChanged();}
+            adapter.notifyDataSetChanged();
+        }
     }
 
-    private void showReport(){
-        tvReport.setText("Số đồ cần mua: " + AppData.ListItem.size() + " - Tổng tiền: " + AppData.getTotalBill());
+    private void showReport() {
+        tvReport.setText("Số đồ cần mua: " + AppData.ListItem.size()
+                + " - Tổng tiền: " + AppData.getTotalBill());
     }
 }

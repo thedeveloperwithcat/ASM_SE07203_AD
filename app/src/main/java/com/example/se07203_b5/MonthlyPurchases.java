@@ -1,118 +1,114 @@
 package com.example.se07203_b5;
 
-import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity; // Sửa lỗi 1: Import đúng lớp Activity
-import java.util.ArrayList;
-import java.util.List;
 
-// Sửa lỗi 2: Cấu trúc lại lớp, lớp này nên là Activity chính
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
+
 public class MonthlyPurchases extends AppCompatActivity {
 
-    private Spinner edtProduct; // Sửa lỗi 3: edtProduct nên là Spinner
-    private EditText edtMonth, edtYear, edtQty, edtTotalPrice;
-    private Button btnSaveMonthly;
+    private EditText edtProduct, edtMonth, edtYear, edtQty, edtTotalPrice;
+    private Button btnSaveMonthly, btnBack;
 
     private DatabaseHelper db;
-    private ArrayList<Item> products;
-    // Sửa lỗi 4: Xóa biến productAdapter không cần thiết
-    private long currentUserId = 1; // Giả sử ID người dùng hiện tại là 1
+    private long currentUserId;
 
-    public MonthlyPurchases(long aLong, long aLong1, int anInt, int anInt1, int anInt2, int anInt3) {
-    }
 
-    @SuppressLint({"WrongViewCast", "MissingInflatedId"})
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); // Thêm dòng này để tuân thủ vòng đời Activity
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monthly_purchases);
 
+        // Khởi tạo DB
         db = new DatabaseHelper(this);
 
-        // Ánh xạ các thành phần từ layout XML
+        // Lấy user id từ SharedPreferences (giống MainActivity)
+        SharedPreferences sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
+        currentUserId = sharedPreferences.getLong("user_id", 0);
+
+        // Ánh xạ view đúng với XML
         edtProduct = findViewById(R.id.edtProduct);
         edtMonth = findViewById(R.id.edtMonth);
         edtYear = findViewById(R.id.edtYear);
-        edtQty = findViewById(R.id.edtQuantity);
+        edtQty = findViewById(R.id.edtQty);               // ID đúng trong XML
         edtTotalPrice = findViewById(R.id.edtTotalPrice);
         btnSaveMonthly = findViewById(R.id.btnSaveMonthly);
+        btnBack = findViewById(R.id.btnBack);
 
-        loadProductsToSpinner();
+        // Nút quay lại
+        btnBack.setOnClickListener(v -> finish());
 
+        // Nút lưu theo tháng
         btnSaveMonthly.setOnClickListener(v -> saveMonthlyPurchase());
     }
 
-    private void loadProductsToSpinner() {
-        // Lấy danh sách sản phẩm của người dùng
-        products = db.getProducts(currentUserId);
-
-        List<String> names = new ArrayList<>();
-        if (products != null) {
-            for (Item item : products) {
-                names.add(item.getName());
-            }
-        }
-
-        // Sửa lỗi 5: Sử dụng `this` thay vì `requireContext()` và sửa tham chiếu adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, names);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        edtProduct.setAdapter(adapter);
-    }
-
     private void saveMonthlyPurchase() {
-        if (products == null || products.isEmpty()) {
-            Toast.makeText(this, "Chưa có sản phẩm nào", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String productName = edtProduct.getText().toString().trim();
+        String monthStr = edtMonth.getText().toString().trim();
+        String yearStr = edtYear.getText().toString().trim();
+        String qtyStr = edtQty.getText().toString().trim();
+        String totalStr = edtTotalPrice.getText().toString().trim();
 
-        // Sửa lỗi 6: Lấy vị trí item được chọn trong Spinner một cách chính xác
-        int pos = edtProduct.getSelectedItemPosition();
-        Item selectedItem = products.get(pos);
-
-        // Thêm kiểm tra đầu vào để tránh ứng dụng bị crash
-        String monthStr = edtMonth.getText().toString();
-        String yearStr = edtYear.getText().toString();
-        String quantityStr = edtQty.getText().toString();
-        String totalPriceStr = edtTotalPrice.getText().toString();
-
-        if (monthStr.isEmpty() || yearStr.isEmpty() || quantityStr.isEmpty() || totalPriceStr.isEmpty()) {
+        if (productName.isEmpty() || monthStr.isEmpty() || yearStr.isEmpty()
+                || qtyStr.isEmpty() || totalStr.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        int month, year, quantity, totalPrice;
         try {
-            int month = Integer.parseInt(monthStr);
-            int year = Integer.parseInt(yearStr);
-            int quantity = Integer.parseInt(quantityStr);
-            int totalPrice = Integer.parseInt(totalPriceStr);
-
-            // Gọi phương thức để thêm dữ liệu vào database
-            long id = db.addMonthlyPurchases(
-                    selectedItem.getId(),
-                    month,
-                    year,
-                    quantity,
-                    totalPrice,
-                    currentUserId
-            );
-
-            if (id > 0) {
-                Toast.makeText(this, "Lưu thành công!", Toast.LENGTH_SHORT).show();
-                // Xóa các trường sau khi lưu thành công (tùy chọn)
-                edtMonth.setText("");
-                edtYear.setText("");
-                edtQty.setText("");
-                edtTotalPrice.setText("");
-            } else {
-                Toast.makeText(this, "Lưu thất bại!", Toast.LENGTH_SHORT).show();
-            }
+            month = Integer.parseInt(monthStr);
+            year = Integer.parseInt(yearStr);
+            quantity = Integer.parseInt(qtyStr);
+            totalPrice = Integer.parseInt(totalStr);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Vui lòng nhập số hợp lệ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Tháng / năm / số lượng / giá phải là số", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Lấy danh sách sản phẩm của user để tìm productId theo tên
+        ArrayList<Item> products = db.getProducts(currentUserId);
+        Item selectedItem = null;
+        for (Item item : products) {
+            if (item.getName().equalsIgnoreCase(productName)) {
+                selectedItem = item;
+                break;
+            }
+        }
+
+        if (selectedItem == null) {
+            Toast.makeText(this,
+                    "Không tìm thấy sản phẩm có tên này trong danh sách đồ cần mua",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Lưu vào bảng monthly_purchases
+        long id = db.addMonthlyPurchases(
+                selectedItem.getId(),  // product_id
+                month,
+                year,
+                quantity,
+                totalPrice,
+                currentUserId
+        );
+
+        if (id > 0) {
+            Toast.makeText(this, "Lưu thành công!", Toast.LENGTH_SHORT).show();
+            // Clear form
+            // edtProduct.setText(""); // nếu không muốn xóa tên sản phẩm thì comment lại
+            edtMonth.setText("");
+            edtYear.setText("");
+            edtQty.setText("");
+            edtTotalPrice.setText("");
+        } else {
+            Toast.makeText(this, "Lưu thất bại!", Toast.LENGTH_SHORT).show();
         }
     }
 }
