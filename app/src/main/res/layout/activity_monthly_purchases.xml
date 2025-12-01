@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/editTextText2"
+        android:id="@+id/edtMonth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -16,7 +16,7 @@
         tools:layout_editor_absoluteY="274dp" />
 
     <EditText
-        android:id="@+id/editTextText3"
+        android:id="@+id/edtYear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -26,7 +26,7 @@
         tools:layout_editor_absoluteY="352dp" />
 
     <EditText
-        android:id="@+id/editTextText4"
+        android:id="@+id/edtQty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -36,7 +36,7 @@
         tools:layout_editor_absoluteY="432dp" />
 
     <EditText
-        android:id="@+id/editTextText5"
+        android:id="@+id/edtTotalPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -58,7 +58,7 @@
         app:layout_constraintVertical_bias="0.205" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/edtProduct"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -68,13 +68,25 @@
         tools:layout_editor_absoluteY="202dp" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnSaveMonthly"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.376"
+        app:layout_constraintHorizontal_bias="0.291"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.884" />
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quay Lại"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.717"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.884" />

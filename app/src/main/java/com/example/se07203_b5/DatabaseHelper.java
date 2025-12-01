@@ -2,21 +2,16 @@ package com.example.se07203_b5;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "SE07203Expense";
-    private static final int DATABASE_VERSION = 3;
-
-    //    Table User
+    // Sửa lỗi 5: Tăng phiên bản DB để kích hoạt onUpgrade()
+    private static final int DATABASE_VERSION = 4;
 
     // Bảng lưu mua theo tháng
     private static final String TABLE_MONTHLY = "monthly_purchases";
@@ -28,13 +23,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_MONTHLY_COLUMN_TOTAL_PRICE = "total_price";
     private static final String TABLE_MONTHLY_COLUMN_USER_ID = "user_id";
 
+    // Bảng User
     private static final String TABLE_USER = "users";
     private static final String TABLE_USER_COLUMN_ID = "id";
     private static final String TABLE_USER_COLUMN_USERNAME = "username";
     private static final String TABLE_USER_COLUMN_PASSWORD = "password";
     private static final String TABLE_USER_COLUMN_FULLNAME = "fullname";
 
-    // Table Product
+    // Bảng Product
     private static final String TABLE_PRODUCT = "products";
     private static final String TABLE_PRODUCT_COLUMN_ID = "id";
     private static final String TABLE_PRODUCT_COLUMN_NAME = "name";
@@ -48,11 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MONTHLY);
-
-
+        // Sửa lỗi 1: Xóa các lệnh DROP TABLE không cần thiết khỏi onCreate
         String CREATE_TABLE_USERS = "CREATE TABLE " + TABLE_USER + "("
                 + TABLE_USER_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + TABLE_USER_COLUMN_USERNAME + " TEXT, "
@@ -77,34 +69,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + TABLE_MONTHLY_COLUMN_TOTAL_PRICE + " INTEGER, "
                 + TABLE_MONTHLY_COLUMN_USER_ID + " INTEGER);";
         db.execSQL(CREATE_TABLE_MONTHLY);
-
     }
 
-    public long addProduct(Item product, long UserId) {
-        SQLiteDatabase db = this.getWritableDatabase(); // Khai báo kết nối database với quyền ghi
-        ContentValues values = new ContentValues(); // Khai báo giá trị cần lưu vào database
-        values.put(TABLE_PRODUCT_COLUMN_NAME, product.getName());
-        values.put(TABLE_PRODUCT_COLUMN_QUANTITY, product.getQuantity());
-        values.put(TABLE_PRODUCT_COLUMN_PRICE, product.getUnitPrice());
-        values.put(TABLE_PRODUCT_COLUMN_USER_ID, UserId);
-        long id = db.insert(TABLE_PRODUCT, null, values); // Thêm dữ liệu vào bảng (return id)
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Sửa lỗi 1 & 4: Di chuyển DROP TABLE vào đây và thêm bảng monthly
+        // Cảnh báo: Việc này sẽ xóa toàn bộ dữ liệu khi nâng cấp phiên bản.
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MONTHLY);
+        // Gọi lại onCreate để tạo lại cấu trúc bảng từ đầu
+        onCreate(db);
+    }
+
+    // Sửa lỗi 2: Viết lại hoàn chỉnh phương thức addMonthlyPurchases
+    public long addMonthlyPurchases(long productId, int month, int year, int quantity, int totalPrice, long currentUserId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(TABLE_MONTHLY_COLUMN_PRODUCT_ID, productId);
+        values.put(TABLE_MONTHLY_COLUMN_MONTH, month);
+        values.put(TABLE_MONTHLY_COLUMN_YEAR, year);
+        values.put(TABLE_MONTHLY_COLUMN_QUANTITY, quantity);
+        values.put(TABLE_MONTHLY_COLUMN_TOTAL_PRICE, totalPrice);
+        values.put(TABLE_MONTHLY_COLUMN_USER_ID, currentUserId);
+
+        long id = db.insert(TABLE_MONTHLY, null, values);
         db.close();
-        return id;
+        return id; // Trả về ID của dòng mới được chèn, hoặc -1 nếu có lỗi
     }
 
-    public ArrayList<Item> getProducts(long UserId){
+
+    public ArrayList<Item> getProducts(long UserId) {
+        ArrayList<Item> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_PRODUCT, // Truy vấn dữ liệu trong bảng TABLE_USER
-                // Các cột cần truy vấn (cột nào cần lấy ra) (thứ tự index 0-1-2-3)
+        Cursor cursor = db.query(TABLE_PRODUCT,
                 new String[]{TABLE_PRODUCT_COLUMN_ID, TABLE_PRODUCT_COLUMN_NAME, TABLE_PRODUCT_COLUMN_QUANTITY, TABLE_PRODUCT_COLUMN_PRICE},
-                // Điều kiện lấy (WHERE)
                 TABLE_PRODUCT_COLUMN_USER_ID + "=?",
-                // Giá trị của điều kiện lấy (được fill lần lượt vào dấu ?)
                 new String[]{String.valueOf(UserId)},
-                // Nhóm theo (groupBy), Having, OrderBy
                 null, null, null);
-        ArrayList<Item> items = new ArrayList<Item>();
-        if(cursor.moveToFirst()) {
+
+        if (cursor.moveToFirst()) {
             do {
                 Item item = new Item(
                         cursor.getInt(0),
@@ -112,45 +116,88 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getInt(2),
                         cursor.getInt(3)
                 );
-                items.add(item); // Thêm vào danh sách
+                items.add(item);
             } while (cursor.moveToNext());
         }
+
+        // Sửa lỗi 3: Đóng con trỏ và database để tránh rò rỉ tài nguyên
+        cursor.close();
+        db.close();
+
         return items;
     }
 
+    // --- Các phương thức khác cũng được sửa để đảm bảo đóng tài nguyên ---
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
-        onCreate(db);
-    }
-
-    public long addUser(User user){
-        SQLiteDatabase db = this.getWritableDatabase(); // Khai báo kết nối database với quyền ghi
-        ContentValues values = new ContentValues(); // Khai báo giá trị cần lưu vào database
-        values.put(TABLE_USER_COLUMN_USERNAME, user.getUsername());
-        values.put(TABLE_USER_COLUMN_PASSWORD, user.getPassword());
-        values.put(TABLE_USER_COLUMN_FULLNAME, user.getFullname());
-        long id = db.insert(TABLE_USER, null, values); // Thêm dữ liệu vào bảng (return id)
-        db.close();
+    public long addProduct(Item product, long UserId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(TABLE_PRODUCT_COLUMN_NAME, product.getName());
+        values.put(TABLE_PRODUCT_COLUMN_QUANTITY, product.getQuantity());
+        values.put(TABLE_PRODUCT_COLUMN_PRICE, product.getUnitPrice());
+        values.put(TABLE_PRODUCT_COLUMN_USER_ID, UserId);
+        long id = db.insert(TABLE_PRODUCT, null, values);
+        db.close(); // Đảm bảo db được đóng
         return id;
     }
 
-    public User getUserByUsernameAndPassword(String username, String password)
-    {
-        SQLiteDatabase db = this.getReadableDatabase(); // Khai báo kết nối database với quyền đọc
-        Cursor cursor = db.query(TABLE_USER, // Truy vấn dữ liệu trong bảng TABLE_USER
-                // Các cột cần truy vấn (cột nào cần lấy ra) (thứ tự index 0-1-2-3)
+    public ArrayList<MonthlyPurchases> getMonthlyPurchasesByMonth(long userId, int month, int year) {
+        ArrayList<MonthlyPurchases> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_MONTHLY,
+                new String[]{
+                        TABLE_MONTHLY_COLUMN_ID,
+                        TABLE_MONTHLY_COLUMN_PRODUCT_ID,
+                        TABLE_MONTHLY_COLUMN_MONTH,
+                        TABLE_MONTHLY_COLUMN_YEAR,
+                        TABLE_MONTHLY_COLUMN_QUANTITY,
+                        TABLE_MONTHLY_COLUMN_TOTAL_PRICE
+                },
+                TABLE_MONTHLY_COLUMN_USER_ID + "=? AND " +
+                        TABLE_MONTHLY_COLUMN_MONTH + "=? AND " +
+                        TABLE_MONTHLY_COLUMN_YEAR + "=?",
+                new String[]{String.valueOf(userId), String.valueOf(month), String.valueOf(year)},
+                null, null, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                // Sửa ở đây: Sử dụng getInt() hoặc getLong() cho cột thứ 5 (total_price)
+                MonthlyPurchases mp = new MonthlyPurchases(
+                        cursor.getLong(0),      // id
+                        cursor.getLong(1),      // product_id
+                        cursor.getInt(2),       // month
+                        cursor.getInt(3),       // year
+                        cursor.getInt(4),       // quantity
+                        cursor.getInt(5)        // total_price (SỬA Ở ĐÂY)
+                );
+                list.add(mp);
+            } while (cursor.moveToNext());
+        }
+        cursor.close(); // Đảm bảo cursor được đóng
+        db.close();     // Đảm bảo db được đóng
+        return list;
+    }
+
+    public long addUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(TABLE_USER_COLUMN_USERNAME, user.getUsername());
+        values.put(TABLE_USER_COLUMN_PASSWORD, user.getPassword());
+        values.put(TABLE_USER_COLUMN_FULLNAME, user.getFullname());
+        long id = db.insert(TABLE_USER, null, values);
+        db.close(); // Đảm bảo db được đóng
+        return id;
+    }
+
+    public User getUserByUsernameAndPassword(String username, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USER,
                 new String[]{TABLE_USER_COLUMN_ID, TABLE_USER_COLUMN_USERNAME, TABLE_USER_COLUMN_FULLNAME, TABLE_USER_COLUMN_PASSWORD},
-                // Điều kiện lấy (WHERE)
-                TABLE_USER_COLUMN_USERNAME + "=? AND " + TABLE_USER_COLUMN_PASSWORD +"=?",
-                // Giá trị của điều kiện lấy (được fill lần lượt vào dấu ?)
+                TABLE_USER_COLUMN_USERNAME + "=? AND " + TABLE_USER_COLUMN_PASSWORD + "=?",
                 new String[]{username, password},
-                // Nhóm theo (groupBy), Having, OrderBy
                 null, null, null);
         User user = null;
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             user = new User(
                     cursor.getInt(0),
                     cursor.getString(1),
@@ -158,18 +205,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     cursor.getString(3)
             );
         }
-        cursor.close();
-        db.close();
+        cursor.close(); // Đảm bảo cursor được đóng
+        db.close();     // Đảm bảo db được đóng
         return user;
     }
-    public boolean removeProductById(long id){
-        SQLiteDatabase db = this.getWritableDatabase(); // Khai báo kết nối database với quyền ghi
-        int result = db.delete(TABLE_PRODUCT, // xóa dữ liệu bảng products
-                TABLE_PRODUCT_COLUMN_ID + "= ?", // điều kiện theo id
-                new String[]{String.valueOf(id)} // giá trị id cần xóa
-        );
-        db.close(); // close connection với databasse
-        return result > 0; // result là số lượng record được xóa lớn hơn 0 tức là thành công
 
+    public boolean removeProductById(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete(TABLE_PRODUCT,
+                TABLE_PRODUCT_COLUMN_ID + "= ?",
+                new String[]{String.valueOf(id)}
+        );
+        db.close(); // Đảm bảo db được đóng
+        return result > 0;
     }
 }

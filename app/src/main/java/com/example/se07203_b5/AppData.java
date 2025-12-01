@@ -1,8 +1,10 @@
 package com.example.se07203_b5;
 
+import android.os.Bundle;
+
 import java.util.ArrayList;
 
-public class AppData {
+public abstract class AppData {
     static boolean isLogin = false;
     static ArrayList<String> ListTask = new ArrayList<String>();
 
@@ -17,5 +19,7 @@ public class AppData {
         }
         return totalBill;
     }
+
+    protected abstract void onCreate(Bundle savedInstanceState);
 // update thành công thì mới vào appdata và nó là nơi trung gian để sử dụng
 }
