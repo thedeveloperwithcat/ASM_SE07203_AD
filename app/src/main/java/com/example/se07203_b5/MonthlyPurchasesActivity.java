@@ -14,19 +14,20 @@ import android.widget.EditText;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
-
 
 public class MonthlyPurchasesActivity extends AppCompatActivity {
 
     TextView tvMonthlyReportTitle, tvTotalExpense;
     ListView lvMonthlyPurchases;
-    Button btnBackToMainFromReport, btnLoadReport; // KHAI BÁO NÚT XEM MỚI
-    EditText edtSelectMonth, edtSelectYear; // KHAI BÁO INPUT MỚI
+    Button btnBackToMainFromReport, btnLoadReport;
+    EditText edtSelectMonth, edtSelectYear;
     DatabaseHelper dbHelper;
     SharedPreferences sharedPreferences;
+    BottomNavigationView bottomNavigationView;  // 🔥 ĐÃ THÊM
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,21 +35,20 @@ public class MonthlyPurchasesActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_monthly_purchases);
 
-        // Khai báo và Ánh xạ
+        // ÁNH XẠ VIEW
         tvMonthlyReportTitle = findViewById(R.id.tvMonthlyReportTitle);
         tvTotalExpense = findViewById(R.id.tvTotalExpense);
         lvMonthlyPurchases = findViewById(R.id.lvMonthlyPurchases);
         btnBackToMainFromReport = findViewById(R.id.btnBackToMainFromReport);
-
-        // ÁNH XẠ CÁC THÀNH PHẦN MỚI
         btnLoadReport = findViewById(R.id.btnLoadReport);
         edtSelectMonth = findViewById(R.id.edtSelectMonth);
         edtSelectYear = findViewById(R.id.edtSelectYear);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);  // 🔥 ĐÃ ÁNH XẠ
 
         dbHelper = new DatabaseHelper(this);
         sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
 
-        // Lấy thông tin tháng/năm hiện tại (để làm báo cáo mặc định)
+        // Lấy tháng/năm hiện tại
         Calendar calendar = Calendar.getInstance();
         int currentMonth = calendar.get(Calendar.MONTH) + 1;
         int currentYear = calendar.get(Calendar.YEAR);
@@ -59,20 +59,37 @@ public class MonthlyPurchasesActivity extends AppCompatActivity {
             return;
         }
 
-        // Đặt giá trị mặc định cho input là tháng/năm hiện tại
+        // Gán tháng/năm mặc định vào input
         edtSelectMonth.setText(String.valueOf(currentMonth));
         edtSelectYear.setText(String.valueOf(currentYear));
 
-        // Lấy và hiển thị báo cáo mặc định
+        // Tải báo cáo mặc định
         loadReport(userId, currentMonth, currentYear);
 
-        // Xử lý sự kiện nút Back
+        // NÚT BACK VỀ HOME
         btnBackToMainFromReport.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+            finish();
         });
 
-        // XỬ LÝ SỰ KIỆN NÚT 'XEM' (LOAD REPORT)
+        // BOTTOM NAVIGATION
+        bottomNavigationView.setSelectedItemId(R.id.nav_report);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_report) {
+                return true;
+            }
+            return false;
+        });
+
+        // NÚT "XEM" – Load báo cáo theo tháng/năm
         btnLoadReport.setOnClickListener(v -> {
             String monthStr = edtSelectMonth.getText().toString();
             String yearStr = edtSelectYear.getText().toString();
@@ -92,6 +109,7 @@ public class MonthlyPurchasesActivity extends AppCompatActivity {
                 }
 
                 loadReport(userId, selectedMonth, selectedYear);
+
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Tháng và Năm phải là số hợp lệ", Toast.LENGTH_SHORT).show();
             }
@@ -113,9 +131,9 @@ public class MonthlyPurchasesActivity extends AppCompatActivity {
 
         tvTotalExpense.setText("Tổng chi tiêu tháng " + month + "/" + year + ": " + totalBill + " VNĐ");
 
-        // Sử dụng ArrayAdapter để hiển thị danh sách giao dịch
         ArrayAdapter<MonthlyPurchase> adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_list_item_1, monthlyData);
+
         lvMonthlyPurchases.setAdapter(adapter);
     }
 }
