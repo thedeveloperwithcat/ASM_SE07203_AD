@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/titlePageCreateEdit"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android.layout_height="wrap_content"
         android:text="Thêm mới"
         android:textSize="34sp"
         android:textStyle="bold"
@@ -46,8 +46,7 @@
     <EditText
         android:id="@+id/edtItemName"
         android:layout_width="377dp"
-        android:layout_height="216dp"
-        android:background="@color/material_dynamic_secondary95"
+        android:layout_height="wrap_content" android:background="@color/material_dynamic_secondary95"
         android:ems="10"
         android:hint="Mua gì"
         android:inputType="text"
@@ -61,8 +60,7 @@
     <EditText
         android:id="@+id/edtQuantity"
         android:layout_width="390dp"
-        android:layout_height="87dp"
-        android:background="@color/material_dynamic_neutral_variant95"
+        android:layout_height="wrap_content" android:background="@color/material_dynamic_neutral_variant95"
         android:ems="10"
         android:hint="Số lượng cần mua"
         android:inputType="number"
@@ -76,8 +74,7 @@
     <EditText
         android:id="@+id/edtUnitPrice"
         android:layout_width="390dp"
-        android:layout_height="87dp"
-        android:background="@color/material_dynamic_neutral_variant95"
+        android:layout_height="wrap_content" android:background="@color/material_dynamic_neutral_variant95"
         android:ems="10"
         android:hint="Đơn giá"
         android:inputType="number"
