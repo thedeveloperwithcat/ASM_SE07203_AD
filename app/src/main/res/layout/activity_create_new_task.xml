@@ -5,83 +5,81 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".CreateNewTaskActivity">
 
     <TextView
         android:id="@+id/titlePageCreateEdit"
         android:layout_width="wrap_content"
-        android.layout_height="wrap_content"
+        android:layout_height="wrap_content"
         android:text="Thêm mới"
         android:textSize="34sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.056" />
-
-    <Button
-        android:id="@+id/btnBackToMain"
-        android:layout_width="277dp"
-        android:layout_height="55dp"
-        android:text="Về HomePage"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.926" />
-
-    <Button
-        android:id="@+id/btnSubmitCreate"
-        android:layout_width="277dp"
-        android:layout_height="55dp"
-        android:text="Lưu"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.832" />
+        android:layout_marginTop="24dp" />
 
     <EditText
         android:id="@+id/edtItemName"
-        android:layout_width="377dp"
-        android:layout_height="wrap_content" android:background="@color/material_dynamic_secondary95"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/material_dynamic_secondary95"
         android:ems="10"
         android:hint="Mua gì"
         android:inputType="text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.47"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/titlePageCreateEdit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.225" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
 
     <EditText
         android:id="@+id/edtQuantity"
-        android:layout_width="390dp"
-        android:layout_height="wrap_content" android:background="@color/material_dynamic_neutral_variant95"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/material_dynamic_neutral_variant95"
         android:ems="10"
         android:hint="Số lượng cần mua"
         android:inputType="number"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.476"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/edtItemName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.513" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
     <EditText
         android:id="@+id/edtUnitPrice"
-        android:layout_width="390dp"
-        android:layout_height="wrap_content" android:background="@color/material_dynamic_neutral_variant95"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/material_dynamic_neutral_variant95"
         android:ems="10"
         android:hint="Đơn giá"
         android:inputType="number"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.38"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/edtQuantity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.684" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnSubmitCreate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Lưu"
+        app:layout_constraintBottom_toTopOf="@id/btnBackToMain"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnBackToMain"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Về HomePage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
