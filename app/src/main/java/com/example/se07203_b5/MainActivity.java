@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
         if (!sharedPreferences.getBoolean("isLogin", false)){
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+            finish();
+            return;
         }
 
         super.onCreate(savedInstanceState);
