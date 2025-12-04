@@ -14,6 +14,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button btnCreate, btnLogout, btnViewReport;
     ListView lvListItem;
+    BottomNavigationView bottomNavigationView;
     int count = 0;
     TextView tvListTitle, tvReport; // khai báo TextView để hiển thị tiêu đề danh sách task
     ArrayAdapter<Item> adapter; // khai báo adapter - công cụ để kết nối danh sách task với ListView
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main); // kết nối với layout activity_main với class MainActivity
 
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
         btnCreate = findViewById(R.id.btnCreate); // liên kết với id btnCreate trong layout
         btnLogout = findViewById(R.id.btnLogout); // liên kết với id btnShow trong layout
         lvListItem = findViewById(R.id.lvItem); // liên kết với id lvTask trong layout
@@ -55,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Item> _items = dbHelper.getProducts(userId);
         AppData.ListItem.clear();
         AppData.ListItem = _items;
-
 
         // Khởi tạo adapter với "this" là context - chính là lớp MainActivity
         // và android.R.layout.simple_list_item_1 là layout sẵn có trong Android (chỉ 1 dòng text)
@@ -89,8 +91,25 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         });
-    }
 
+
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+        int itemId = item.getItemId();
+        if (itemId == R.id.nav_home) {
+            // Đã ở MainActivity
+            return true;
+        } else if (itemId == R.id.nav_report) {
+            // Chuyển sang MonthlyPurchasesActivity
+            startActivity(new Intent(getApplicationContext(), MonthlyPurchasesActivity.class));
+            overridePendingTransition(0, 0); // Xóa hiệu ứng chuyển động
+            finish(); // Đóng MainActivity
+            return true;
+        }
+        return false;
+    });
+}
     private void showOptionsDialog(int position){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Lựa chọn hành động!");
