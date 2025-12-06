@@ -72,19 +72,44 @@ public class CreateNewTaskActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void editAnItem(){
-        String itemName = edtItemName.getText().toString();
+    private void editAnItem() {
+        String itemName = edtItemName.getText().toString().trim();
         int quantity = 0, unitPrice = 0;
+
+        // Validate
         try {
             quantity = Integer.parseInt(edtQuantity.getText().toString());
             unitPrice = Integer.parseInt(edtUnitPrice.getText().toString());
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
+            edtQuantity.setError("Số lượng và đơn giá phải là số hợp lệ");
+            return;
+        }
+
+        if (quantity < 1) {
             edtQuantity.setError("Số lượng phải lớn hơn 0");
             return;
         }
-        AppData.ListItem.get(position).setName(itemName);
-        AppData.ListItem.get(position).setQuantity(quantity);
-        AppData.ListItem.get(position).setUnitPrice(unitPrice);
+
+        // Lấy item cần sửa
+        Item item = AppData.ListItem.get(position);
+
+        // Cập nhật vào object (RAM)
+        item.setName(itemName);
+        item.setQuantity(quantity);
+        item.setUnitPrice(unitPrice);
+
+        // Cập nhật vào Database
+        DatabaseHelper db = new DatabaseHelper(this);
+        boolean result = db.updateProduct(item);
+
+        if (!result) {
+            Toast.makeText(this, "Update product failed!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(this, "Update product successfully!", Toast.LENGTH_SHORT).show();
+
+        // Trả kết quả và đóng Activity
         setResult(RESULT_OK);
         finish();
     }

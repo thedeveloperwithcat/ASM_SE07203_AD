@@ -77,6 +77,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_MONTHLY);
 
     }
+    public boolean updateProduct(Item item) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(TABLE_PRODUCT_COLUMN_NAME, item.getName());
+        values.put(TABLE_PRODUCT_COLUMN_QUANTITY, item.getQuantity());
+        values.put(TABLE_PRODUCT_COLUMN_PRICE, item.getUnitPrice());
+
+        int rows = db.update(
+                TABLE_PRODUCT,
+                values,
+                TABLE_PRODUCT_COLUMN_ID + "=?",
+                new String[]{String.valueOf(item.getId())}
+        );
+
+        db.close();
+        return rows > 0;
+    }
+
 
     public long addProduct(Item product, long UserId) {
         SQLiteDatabase db = this.getWritableDatabase(); // Khai báo kết nối database với quyền ghi
