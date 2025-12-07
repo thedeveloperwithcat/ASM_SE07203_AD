@@ -1,4 +1,4 @@
-package com.example.se07203_b5;
+package com.example.se07203_b5.Activitys;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,17 +9,15 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-public class LoginActivity extends AppCompatActivity {
+import com.example.se07203_b5.Database.DatabaseHelper;
+import com.example.se07203_b5.R;
+import com.example.se07203_b5.Models.User;
 
+public class MainActivity extends AppCompatActivity {
     Button btnSubmitLogin, btnGoToRegister;
     EditText edtUsername, edtPassword;
-
     DatabaseHelper databaseHelper; // Khai báo sử dụng database Helper
-
     SharedPreferences sharedPreferences; // Khai báo sử dụng shared Preferences
 
     @Override
@@ -50,21 +48,19 @@ public class LoginActivity extends AppCompatActivity {
             String password = edtPassword.getText().toString();
             try {
                 DatabaseHelper db = new DatabaseHelper(this);
-                User user = db.getUserByUsernameAndPassword(username, password);
+                User user = db.getUser(username, password);
                 if (user != null && user.getFullname() != null){
                     sharedPreferencesEditor.putString("username", username);
                     sharedPreferencesEditor.putString("fullname", user.getFullname());
                     sharedPreferencesEditor.putLong("user_id", user.getId());
                     sharedPreferencesEditor.putBoolean("isLogin", true);
                     sharedPreferencesEditor.apply();
-                    Intent intent = new Intent(this, MainActivity.class);
+                    Intent intent = new Intent(this, ExpenseActivity.class);
                     startActivity(intent);
                 }
             } catch (Exception e) {
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-
         });
-
     }
 }

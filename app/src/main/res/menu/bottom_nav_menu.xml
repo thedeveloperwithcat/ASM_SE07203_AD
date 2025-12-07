@@ -2,10 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@android:drawable/ic_menu_edit"
-        android:title="Danh sách" />
+        android:icon="@drawable/home_nav"
+        android:title="Home" />
+    <item
+        android:id="@+id/nav_expense"
+        android:icon="@drawable/expense_nav"
+        android:title="Expense" />
+    <item
+        android:id="@+id/nav_budget"
+        android:icon="@drawable/budget_nav"
+        android:title="Budget" />
     <item
         android:id="@+id/nav_report"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="Báo cáo" />
+        android:icon="@drawable/report_nav"
+        android:title="Report" />
+    <item
+        android:id="@+id/nav_setting"
+        android:icon="@drawable/settings_nav"
+        android:title="Setting" />
 </menu>
