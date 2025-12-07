@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterActivity">
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    tools:context=".Activitys.RegisterActivity">
 
-    <LinearLayout
-        android:layout_width="335dp"
-        android:layout_height="302dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <TextView
+        android:id="@+id/tvTitleRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:textAlignment="center"
+        android:textSize="32dp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-black"
+        android:paddingBottom="20dp"/>
 
-        <TextView
-            android:id="@+id/tvTitleRegister"
-            android:layout_width="match_parent"
-            android:layout_height="62dp"
-            android:fontFamily="sans-serif-black"
-            android:text="Register"
-            android:textAlignment="center"
-            android:textSize="48sp"
-            android:textStyle="bold" />
+    <EditText
+        android:id="@+id/edtRegisterFullname"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="Fullname"
+        android:inputType="text"
+        android:layout_marginTop="8dp"/>
 
-        <EditText
-            android:id="@+id/edtRegisterUsername"
-            android:layout_width="match_parent"
-            android:layout_height="57dp"
-            android:ems="10"
-            android:hint="Username"
-            android:inputType="text" />
+    <EditText
+        android:id="@+id/edtRegisterUsername"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="Username"
+        android:inputType="text"
+        android:layout_marginTop="8dp"/>
 
-        <EditText
-            android:id="@+id/edtRegisterPassword"
-            android:layout_width="match_parent"
-            android:layout_height="66dp"
-            android:ems="10"
-            android:hint="Password"
-            android:inputType="text" />
+    <EditText
+        android:id="@+id/edtRegisterPassword"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:layout_marginTop="8dp"/>
 
-        <EditText
-            android:id="@+id/edtRegisterFullname"
-            android:layout_width="match_parent"
-            android:layout_height="68dp"
-            android:ems="10"
-            android:hint="Fullname"
-            android:inputType="text" />
+    <Button
+        android:id="@+id/btnRegisterSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Submit"
+        android:layout_marginTop="16dp" />
 
-        <Button
-            android:id="@+id/btnRegisterSubmit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Submit" />
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <Button
+        android:id="@+id/btnBackToLogin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Back to Login"
+        android:layout_marginTop="10dp" />
+
+</LinearLayout>

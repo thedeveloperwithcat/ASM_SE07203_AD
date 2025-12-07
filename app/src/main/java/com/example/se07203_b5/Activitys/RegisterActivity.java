@@ -1,4 +1,4 @@
-package com.example.se07203_b5;
+package com.example.se07203_b5.Activitys;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,13 +8,14 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.example.se07203_b5.Database.DatabaseHelper;
+import com.example.se07203_b5.R;
+import com.example.se07203_b5.Models.User;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    Button btnRegisterSubmit;
+    Button btnRegisterSubmit, btnBackToLogin;
     EditText edtRegisterUsername, edtRegisterPassword, edtRegisterFullname;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,12 @@ public class RegisterActivity extends AppCompatActivity {
         edtRegisterUsername = findViewById(R.id.edtRegisterUsername);
         edtRegisterPassword = findViewById(R.id.edtRegisterPassword);
         edtRegisterFullname = findViewById(R.id.edtRegisterFullname);
+        btnBackToLogin = findViewById(R.id.btnBackToLogin);
+
+        btnBackToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        });
 
         btnRegisterSubmit.setOnClickListener(v -> { // Xử lý sự kiện đăng ký tài khoản
             String username = edtRegisterUsername.getText().toString();
@@ -36,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
                 long resultId = db.addUser(user);
                 if (resultId > 0) {
                     Toast.makeText(this, "Register Success", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                     startActivity(intent);
                 }else{
                     Toast.makeText(this, "Register Failed", Toast.LENGTH_SHORT).show();

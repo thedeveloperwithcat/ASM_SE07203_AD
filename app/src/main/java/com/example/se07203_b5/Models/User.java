@@ -1,4 +1,4 @@
-package com.example.se07203_b5;
+package com.example.se07203_b5.Models;
 
 public class User {
     private int id;
