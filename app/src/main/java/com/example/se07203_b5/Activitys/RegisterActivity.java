@@ -10,8 +10,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.se07203_b5.Database.DatabaseHelper;
-import com.example.se07203_b5.R;
 import com.example.se07203_b5.Models.User;
+import com.example.se07203_b5.R;
 
 public class RegisterActivity extends AppCompatActivity {
 

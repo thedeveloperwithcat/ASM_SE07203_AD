@@ -578,4 +578,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         wdb.update("budgets", cv, "id=?", new String[]{String.valueOf(budgetId)});
     }
 
+    public User getUserByUsernameAndPassword(String username, String password) {
+        return null;
+    }
 }
