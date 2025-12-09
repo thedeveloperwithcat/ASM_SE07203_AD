@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.se07203_b5.Activitys.CreateExpenseActivity;
 import com.example.se07203_b5.Database.DatabaseHelper;
 import com.example.se07203_b5.Models.Expense;
 import com.example.se07203_b5.R;
@@ -42,16 +43,17 @@ public class ExpenseActivity extends AppCompatActivity {
     // ============================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         // Kiểm tra login
         sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
         if (!sharedPreferences.getBoolean("isLogin", false)) {
-            startActivity(new Intent(this, MainActivity.class));
+            Intent intent = new Intent(ExpenseActivity.this, CreateExpenseActivity.class);
+            startActivityForResult(intent, AppData.CREATE_TASK);
             finish();
             return;
         }
 
-        super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_expense);
 
@@ -80,6 +82,14 @@ public class ExpenseActivity extends AppCompatActivity {
     // ============================
     private void initDatabase() {
         dbHelper = new DatabaseHelper(this);
+
+        long userId = sharedPreferences.getLong("user_id", 0);
+
+        // Khi mở app lần sau (đã login trước đó), load lại data ngay lập tức
+        if (userId > 0) {
+            AppData.ListItemExpense = dbHelper.getExpenseByUserId(userId);
+            AppData.ListItemBudget = dbHelper.getBudgetByUserId(userId);
+        }
     }
 
 
@@ -109,7 +119,10 @@ public class ExpenseActivity extends AppCompatActivity {
 
         // Create new item
         btnCreate.setOnClickListener(v ->
-                startActivity(new Intent(ExpenseActivity.this, CreateExpenseActivity.class))
+                startActivityForResult(
+                        new Intent(ExpenseActivity.this, CreateExpenseActivity.class),
+                        AppData.CREATE_TASK
+                )
         );
 
         // Click on a list item
@@ -126,19 +139,23 @@ public class ExpenseActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose action");
 
-        String[] options = {"Update", "Delete"};
+        String[] options = {"Detail Info", "Update", "Delete"};
 
         builder.setItems(options, (dialog, which) -> {
-            if (which == 0) {             // Update
+
+            if (which == 0) {          // 📌 Detail Info
+                showDetailDialog(position);
+
+            } else if (which == 1) {   // ✏ Update
                 Intent intent = new Intent(ExpenseActivity.this, CreateExpenseActivity.class);
                 intent.putExtra("position", position);
                 startActivityForResult(intent, AppData.EDIT_TASK);
 
-            } else {                      // Delete
+            } else {  // 🗑 Delete
                 Expense item = AppData.ListItemExpense.get(position);
                 long itemId = item.getId();
 
-                boolean result = dbHelper.removeProductById(itemId);
+                boolean result = dbHelper.removeExpenseById(itemId);
                 if (result) {
                     AppData.ListItemExpense.remove(position);
                     adapter.notifyDataSetChanged();
@@ -153,6 +170,24 @@ public class ExpenseActivity extends AppCompatActivity {
     }
 
 
+    private void showDetailDialog(int position) {
+        Expense item = AppData.ListItemExpense.get(position);
+
+        String message =
+                "\nExpense name: " + item.getName() +
+                        "\nQuantity: " + item.getQuantity() +
+                        "\nPrice: " + item.getUnitPrice() + " vnd" +
+                        "\nDate: " + new java.text.SimpleDateFormat("dd/MM/yyyy")
+                        .format(new java.util.Date(item.getTimestamp()));
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Expense Details");
+        dialog.setMessage(message);
+        dialog.setPositiveButton("OK", null);
+        dialog.show();
+    }
+
+
     // ============================
     //        Receive update
     // ============================
@@ -160,8 +195,19 @@ public class ExpenseActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == AppData.EDIT_TASK && resultCode == RESULT_OK) {
-            adapter.notifyDataSetChanged();
+        if (resultCode == RESULT_OK) {
+
+            if (requestCode == AppData.CREATE_TASK) {
+
+                loadData();                 // 🔥 load lại dữ liệu từ DB
+                adapter.notifyDataSetChanged();
+            }
+
+            if (requestCode == AppData.EDIT_TASK) {
+
+                loadData();                 // 🔥 load lại dữ liệu từ DB
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 

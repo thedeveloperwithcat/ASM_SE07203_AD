@@ -8,22 +8,25 @@ public class Budget {
     private int price;
     private long startTimestamp;
     private long endTimestamp;
+    private long userId;
 
     public Budget() {}
 
-    public Budget(int id, String name, int price, long startTimestamp, long endTimestamp) {
+    public Budget(int id, String name, int price, long startTimestamp, long endTimestamp, long userId) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.startTimestamp = startTimestamp;
         this.endTimestamp = endTimestamp;
+        this.userId = userId;
     }
 
-    public Budget(String name, int price, long startTimestamp, long endTimestamp) {
+    public Budget(String name, int price, long startTimestamp, long endTimestamp,long userId) {
         this.name = name;
         this.price = price;
         this.startTimestamp = startTimestamp;
         this.endTimestamp = endTimestamp;
+        this.userId = userId;
     }
 
     @NonNull
@@ -48,4 +51,7 @@ public class Budget {
 
     public long getEndTimestamp() { return endTimestamp; }
     public void setEndTimestamp(long endTimestamp) { this.endTimestamp = endTimestamp; }
+
+    public long getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
 }

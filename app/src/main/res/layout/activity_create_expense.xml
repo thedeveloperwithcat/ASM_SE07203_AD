@@ -8,6 +8,7 @@
     android:padding="16dp"
     tools:context=".Activitys.CreateExpenseActivity">
 
+
     <TextView
         android:id="@+id/titlePageCreateEdit"
         android:layout_width="wrap_content"
@@ -20,19 +21,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/edtItemName"
+    <Spinner
+        android:id="@+id/spBudget"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:background="@color/material_dynamic_secondary95"
-        android:ems="10"
-        android:hint="expense"
-        android:inputType="text"
+        android:layout_marginTop="16dp"
+        android:background="@color/material_dynamic_neutral_variant95"
         android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titlePageCreateEdit" />
+
 
     <EditText
         android:id="@+id/edtQuantity"
@@ -40,13 +39,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@color/material_dynamic_neutral_variant95"
-        android:ems="10"
         android:hint="quantity to buy"
         android:inputType="number"
         android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edtItemName" />
+        app:layout_constraintTop_toBottomOf="@id/spBudget" />
 
     <EditText
         android:id="@+id/edtUnitPrice"
@@ -54,7 +52,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@color/material_dynamic_neutral_variant95"
-        android:ems="10"
         android:hint="unit price"
         android:inputType="number"
         android:padding="12dp"
@@ -63,25 +60,24 @@
         app:layout_constraintTop_toBottomOf="@id/edtQuantity" />
 
     <EditText
-        android:id="@+id/edtCalender"
+        android:id="@+id/edtTime"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@color/material_dynamic_neutral_variant95"
-        android:ems="10"
-        android:padding="12dp"
         android:focusable="false"
         android:clickable="true"
-        android:hint="Select date"
+        android:hint="select date"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edtUnitPrice" />
-
 
     <Button
         android:id="@+id/btnSubmitCreate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:layout_marginBottom="16dp"
         android:text="Create"
         app:layout_constraintBottom_toTopOf="@id/btnBackToList"

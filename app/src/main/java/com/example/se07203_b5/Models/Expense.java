@@ -3,28 +3,37 @@ package com.example.se07203_b5.Models;
 import androidx.annotation.NonNull;
 
 public class Expense {
-    private long id;
+    private int id;
     private String itemName;
     private int quantity;
     private int unitPrice;
-    private long timestamp; // epoch millis – ngày chi tiêu
+    private long timestamp;
+    private long userId;
+    private int budgetId;
 
     // Constructors
 
-    public Expense(String itemName, int quantity, int unitPrice, long timestamp) {
+    // Dành cho tạo mới
+    public Expense(String itemName, int quantity, int unitPrice, long timestamp, long userId, int budgetId) {
         this.itemName = itemName;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.timestamp = timestamp;
+        this.userId = userId;
+        this.budgetId = budgetId;
     }
 
-    public Expense(long id, String name, int quantity, int unitPrice, long timestamp) {
+    // Dành cho update
+    public Expense(int id, String itemName, int quantity, int unitPrice, long timestamp, long userId, int budgetId) {
         this.id = id;
-        this.itemName = name;
+        this.itemName = itemName;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.timestamp = timestamp;
+        this.userId = userId;
+        this.budgetId = budgetId;
     }
+
 
     // toString
     @NonNull
@@ -36,7 +45,7 @@ public class Expense {
     }
 
     // GETTERS & SETTERS
-    public long getId() { return id; }
+    public int getId() { return id; }
     public String getName() { return itemName; }
     public int getQuantity() { return quantity; }
     public int getUnitPrice() { return unitPrice; }
@@ -45,9 +54,13 @@ public class Expense {
         return quantity * unitPrice;
     }
 
-
+    public void setId(int id) { this.id = id; }
     public void setName(String name) { this.itemName = name; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
     public void setUnitPrice(int price) { this.unitPrice = price; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    public long getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+    public int getBudgetId() { return budgetId; }
+    public void setBudgetId(int budgetId) { this.budgetId = budgetId; }
 }

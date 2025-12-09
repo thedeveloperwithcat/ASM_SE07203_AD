@@ -11,8 +11,9 @@ public class AppData {
 
     public static ArrayList<Expense> ListItemExpense = new ArrayList<Expense>();
     public static ArrayList<Budget> ListItemBudget = new ArrayList<Budget>();
+    public static final int CREATE_TASK = 1;
+    public static final int EDIT_TASK = 2;
 
-    public static final int EDIT_TASK = 1;
 
     public static int getTotalBill(){
         int totalBill = 0;

@@ -6,6 +6,7 @@ import android.content.Intent;
 import com.example.se07203_b5.Activitys.BudgetActivity;
 import com.example.se07203_b5.Activitys.ExpenseActivity;
 import com.example.se07203_b5.Activitys.MonthlyPurchasesActivity;
+import com.example.se07203_b5.Activitys.SettingActivity;
 import com.example.se07203_b5.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -30,9 +31,9 @@ public class BottomNavHelper {
                 intent = new Intent(activity, MonthlyPurchasesActivity.class);
             }
 
-//            if (itemId == R.id.nav_setting && !(activity instanceof SettingActivity)) {
-//                intent = new Intent(activity, SettingActivity.class);
-//            }
+            if (itemId == R.id.nav_setting && !(activity instanceof SettingActivity)) {
+                intent = new Intent(activity, SettingActivity.class);
+            }
 
             if (intent != null) {
                 activity.startActivity(intent);
