@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
-    tools:context=".Activitys.MainActivity">
+    tools:context=".Activitys.LoginActivity">
 
     <TextView
         android:id="@+id/tvLoginTitle"

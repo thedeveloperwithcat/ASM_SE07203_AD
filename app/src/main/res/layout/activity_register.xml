@@ -47,7 +47,7 @@
         android:id="@+id/btnRegisterSubmit"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Submit"
+        android:text="Register"
         android:layout_marginTop="16dp" />
 
     <Button

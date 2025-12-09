@@ -10,8 +10,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.se07203_b5.Database.DatabaseHelper;
-import com.example.se07203_b5.Models.User;
 import com.example.se07203_b5.R;
+import com.example.se07203_b5.Models.User;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -29,28 +29,42 @@ public class RegisterActivity extends AppCompatActivity {
         btnBackToLogin = findViewById(R.id.btnBackToLogin);
 
         btnBackToLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         });
 
-        btnRegisterSubmit.setOnClickListener(v -> { // Xử lý sự kiện đăng ký tài khoản
-            String username = edtRegisterUsername.getText().toString();
-            String password = edtRegisterPassword.getText().toString();
-            String fullname = edtRegisterFullname.getText().toString();
+        btnRegisterSubmit.setOnClickListener(v -> {
+            String username = edtRegisterUsername.getText().toString().trim();
+            String password = edtRegisterPassword.getText().toString().trim();
+            String fullname = edtRegisterFullname.getText().toString().trim();
+
+            if (username.isEmpty() || password.isEmpty() || fullname.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            DatabaseHelper db = new DatabaseHelper(this);
+
+            // 🔥 CHECK USERNAME EXISTS
+            if (db.isUsernameExists(username)) {
+                Toast.makeText(this, "Username already exists", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             User user = new User(0, username, password, fullname);
+
             try {
-                DatabaseHelper db = new DatabaseHelper(this);
                 long resultId = db.addUser(user);
                 if (resultId > 0) {
                     Toast.makeText(this, "Register Success", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }else{
+                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                } else {
                     Toast.makeText(this, "Register Failed", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 }
