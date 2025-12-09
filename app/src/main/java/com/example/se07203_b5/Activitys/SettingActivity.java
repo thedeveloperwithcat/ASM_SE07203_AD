@@ -42,7 +42,7 @@ public class SettingActivity extends AppCompatActivity {
             SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
             sharedPreferencesEditor.putBoolean("isLogin", false);
             sharedPreferencesEditor.apply();
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
             Toast.makeText(this, "Logout successfully!", Toast.LENGTH_SHORT).show();

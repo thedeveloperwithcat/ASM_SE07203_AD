@@ -43,7 +43,7 @@ public class BudgetActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
         if (!sharedPreferences.getBoolean("isLogin", false)) {
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }

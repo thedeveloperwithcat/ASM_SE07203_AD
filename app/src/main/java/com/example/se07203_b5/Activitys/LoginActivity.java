@@ -15,7 +15,7 @@ import com.example.se07203_b5.R;
 import com.example.se07203_b5.Models.User;
 import com.example.se07203_b5.Utils.AppData;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     Button btnSubmitLogin, btnGoToRegister;
     EditText edtUsername, edtPassword;
     DatabaseHelper databaseHelper; // Khai báo sử dụng database Helper

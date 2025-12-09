@@ -151,6 +151,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return user;
     }
 
+    public boolean isUsernameExists(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id FROM users WHERE username = ?", new String[]{username});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        db.close();
+        return exists;
+    }
+
+
     // ==============================================
     // EXPENSE FUNCTIONS
     // ==============================================
@@ -446,8 +456,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return result > 0;
     }
-
-
 
     public boolean removeExpenseById(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
