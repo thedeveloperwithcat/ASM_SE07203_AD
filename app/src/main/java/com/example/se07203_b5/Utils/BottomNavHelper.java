@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import com.example.se07203_b5.Activitys.BudgetActivity;
 import com.example.se07203_b5.Activitys.ExpenseActivity;
+import com.example.se07203_b5.Activitys.HomeActivity;
 import com.example.se07203_b5.Activitys.MonthlyPurchasesActivity;
 import com.example.se07203_b5.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -16,9 +17,9 @@ public class BottomNavHelper {
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             Intent intent = null;
-//            if (itemId == R.id.nav_home && !(activity instanceof HomeActivity)) {
-//                intent = new Intent(activity, HomeActivity.class);
-//            }
+            if (itemId == R.id.nav_home && !(activity instanceof HomeActivity)) {
+                intent = new Intent(activity, HomeActivity.class);
+            }
 
             if (itemId == R.id.nav_expense && !(activity instanceof ExpenseActivity)) {
                 intent = new Intent(activity, ExpenseActivity.class);
