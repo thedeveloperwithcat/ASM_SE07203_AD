@@ -19,7 +19,7 @@ import java.util.Calendar;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SE07203Expense";
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 24;
 
     // ==============================================
     // USER TABLE
@@ -186,7 +186,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         int remaining = c.getInt(0);
         long startTime = c.getLong(1);
-        long endTime   = c.getLong(2);
+        long endTime = c.getLong(2);
         c.close();
 
         long expenseTime = e.getTimestamp();
@@ -302,7 +302,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
 
-//        db.close(); // đóng để check data trong inspector
+        db.close(); // đóng để check data trong inspector
         return list;
     }
 
@@ -343,7 +343,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        db.close();
+//        db.close();
         return list;
     }
 
@@ -571,10 +571,76 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    //  barchart
+    public int getTotalExpenseOfMonth(long userId, int month, int year) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int total = 0;
 
-    //
+        String start = month + "/1/" + year;
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month - 1, 1);
+        long startTime = cal.getTimeInMillis();
+
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        long endTime = cal.getTimeInMillis();
+
+        String query = "SELECT SUM(price) FROM expenses WHERE user_id=? AND timestamp BETWEEN ? AND ?";
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(userId),
+                String.valueOf(startTime),
+                String.valueOf(endTime)
+        });
+
+        if (cursor.moveToFirst()) {
+            total = cursor.getInt(0);
+        }
+        cursor.close();
+        return total;
+    }
+
+    //Piechart
+    public int getTotalBudgetOfMonth(long userId, int month, int year) {
+        long startMonth = getStartOfMonthTimestamp(month, year);
+        long endMonth = getEndOfMonthTimestamp(month, year);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(price) FROM budgets WHERE user_id=? AND startTimestamp BETWEEN ? AND ?",
+                new String[]{String.valueOf(userId), String.valueOf(startMonth), String.valueOf(endMonth)}
+        );
+
+        int total = 0;
+        if (cursor.moveToFirst()) total = cursor.getInt(0);
+
+        cursor.close();
+        return total;
+    }
+    public long getStartOfMonthTimestamp(int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month - 1);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
+    public long getEndOfMonthTimestamp(int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month - 1);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
+        return cal.getTimeInMillis();
+    }
 
 
+    // thông báo
     public long getTotalExpenseInRange(long userId, long startTime, long endTime) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
@@ -635,9 +701,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return ((float) totalSpent / originalTotal) * 100;
     }
-
-
-
 
 
 }

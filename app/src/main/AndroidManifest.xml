@@ -16,6 +16,11 @@
             android:name=".Activitys.SettingActivity"
             android:exported="false" />
         <activity
+            android:name=".Activitys.HomeActivity"
+            android:exported="false" >
+
+        </activity>
+        <activity
             android:name=".Activitys.CreateBudgetActivity"
             android:exported="false" />
         <activity
@@ -27,9 +32,9 @@
         <activity
             android:name=".Activitys.LoginActivity"
             android:exported="true">
-
-        <intent-filter>
+            <intent-filter>
             <action android:name="android.intent.action.MAIN" />
+
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
         </activity>
@@ -42,8 +47,8 @@
             android:exported="false" />
         <activity
             android:name=".Activitys.ExpenseActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false" />
+
     </application>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>
