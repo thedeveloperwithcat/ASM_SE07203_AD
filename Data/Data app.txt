@@ -1,0 +1,59 @@
+[Data app quản lý sinh viên]
+--- điều kiện là db trống data (mới) hoàn toàn ---
+--- user_id là 1 và budget_id phải từ 1 -> 10 ---
+
+[BUDGETS]
+INSERT INTO budgets (name, price, startTimestamp, endTimestamp, user_id)
+VALUES 
+("sport", 1000, 1765238400000, 1765324800000, 1),
+("eat", 2000, 1765238400000, 1765324800000, 1),
+("drink", 3000, 1765238400000, 1765324800000, 1),
+("shopping", 4000, 1765238400000, 1765324800000, 1),
+("insurance", 5000, 1765238400000, 1765324800000, 1),
+("receipt", 6000, 1765238400000, 1765324800000, 1),
+("family", 7000, 1765238400000, 1765324800000, 1),
+("pet", 8000, 1765238400000, 1765324800000, 1),
+("education", 9000, 1765238400000, 1765324800000, 1),
+("invest", 9000, 1765238400000, 1765324800000, 1);
+
+[EXPENSES]
+INSERT INTO expenses (name, price, quantity, timestamp, budget_id, user_id)
+VALUES
+("sport", 500, 1, 1765238400000 ,1, 1),
+("eat", 1000, 1, 1765238400000 ,2, 1),
+("drink", 1500, 1, 1765238400000, 3, 1),
+("shopping", 2000, 1, 1765238400000, 4, 1),
+("insurance", 2500, 1, 1765238400000, 5, 1),
+("receipt", 3000, 1, 1765238400000, 6, 1),
+("family", 3500, 1, 1765238400000 ,7, 1),
+("pet", 4000, 1, 1765238400000 ,8, 1),
+("education", 4500, 1, 1765238400000, 9, 1),
+("invest", 5000, 1, 1765238400000 ,10, 1);
+
+
+Bonus command query: 
+Update data
+UPDATE Student
+SET name = 'Le Van Teo', age = 25
+WHERE id = 1;
+
+Delete data
+-> Xóa data theo điều kiện id
+DELETE FROM Student
+WHERE id = 2;
+
+-> Xóa data không cần điều kiện
+DELETE FROM Student;
+
+Delete table
+DROP TABLE Student;
+
+Reset AUTOINCREMENT (Id chạy lại từ 1)
+DELETE FROM sqlite_sequence WHERE name='Student';
+
+
+
+
+
+
+

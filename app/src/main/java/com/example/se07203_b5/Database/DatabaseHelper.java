@@ -640,4 +640,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    // thông báo
+    public long getTotalExpenseInRange(long userId, long startTime, long endTime) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(" + EXPENSE_PRICE + " * " + EXPENSE_QUANTITY + ") FROM " + TABLE_EXPENSE +
+                        " WHERE " + EXPENSE_USER_ID + " = ? AND " + EXPENSE_TIMESTAMP + " BETWEEN ? AND ?",
+                new String[]{String.valueOf(userId), String.valueOf(startTime), String.valueOf(endTime)}
+        );
+
+        long total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getLong(0);
+        }
+        cursor.close();
+        return total;
+    }
+
+    // Hàm lấy tổng số dư hiện tại của tất cả ngân sách (cho báo cáo tuần)
+    public long getTotalRemainingBudget(long userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(" + BUDGET_PRICE + ") FROM " + TABLE_BUDGET + " WHERE " + BUDGET_USER_ID + " = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        long total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getLong(0);
+        }
+        cursor.close();
+        return total;
+    }
+
+    // Hàm tính % đã chi tiêu của một Budget cụ thể (cho cảnh báo 80%)
+    public float getBudgetUsagePercentage(int budgetId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Lấy số dư hiện tại
+        Cursor cBudget = db.rawQuery("SELECT " + BUDGET_PRICE + " FROM " + TABLE_BUDGET + " WHERE " + BUDGET_ID + " = ?", new String[]{String.valueOf(budgetId)});
+        if (!cBudget.moveToFirst()) { cBudget.close(); return 0; }
+        long currentRemaining = cBudget.getLong(0);
+        cBudget.close();
+
+        // Lấy tổng tiền đã chi cho budget này
+        Cursor cExpense = db.rawQuery(
+                "SELECT SUM(" + EXPENSE_PRICE + " * " + EXPENSE_QUANTITY + ") FROM " + TABLE_EXPENSE + " WHERE " + EXPENSE_BUDGET_ID + " = ?",
+                new String[]{String.valueOf(budgetId)}
+        );
+        long totalSpent = 0;
+        if (cExpense.moveToFirst()) {
+            totalSpent = cExpense.getLong(0);
+        }
+        cExpense.close();
+
+        // Tổng ban đầu = Số dư hiện tại + Đã chi
+        long originalTotal = currentRemaining + totalSpent;
+
+        if (originalTotal == 0) return 0;
+
+        return ((float) totalSpent / originalTotal) * 100;
+    }
+
+
 }
