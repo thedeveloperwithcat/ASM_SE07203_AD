@@ -1,6 +1,7 @@
 package com.example.se07203_b5.Activitys;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -10,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -206,8 +208,6 @@ public class CreateExpenseActivity extends AppCompatActivity {
                         userId,
                         selectedBudget.getId() // thêm budgetId
                 );
-
-
                 boolean ok = DBHelper.addExpense(newExpense, selectedBudget.getId(), userId);
 
                 if (!ok) {
@@ -219,6 +219,13 @@ public class CreateExpenseActivity extends AppCompatActivity {
                         Toast.makeText(this, "Not enough budget!", Toast.LENGTH_LONG).show();
                     }
                     return;
+                } else {
+
+                    // Kiểm tra cảnh báo 80%
+                    float percent = DBHelper.getBudgetUsagePercentage(selectedBudget.getId()); // Hoặc newBudgetId nếu là update
+                    if (percent >= 80) {
+                        showBudgetWarningNotification(selectedBudget.getName(), percent);
+                    }
                 }
 
                 AppData.ListItemExpense.clear();
@@ -230,7 +237,22 @@ public class CreateExpenseActivity extends AppCompatActivity {
             }
         });
     }
+    private void showBudgetWarningNotification(String budgetName, float percent) {
+        android.app.NotificationManager manager = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelId = "budget_warning_channel";
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            android.app.NotificationChannel channel = new android.app.NotificationChannel(channelId, "Budget Warnings", android.app.NotificationManager.IMPORTANCE_HIGH);
+            manager.createNotificationChannel(channel);
+        }
+        androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Cảnh báo chi tiêu!")
+                .setContentText("Ngân sách '" + budgetName + "' đã dùng " + String.format("%.1f", percent) + "%. Sắp hết hạn mức!")
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH);
+
+        manager.notify((int) System.currentTimeMillis(), builder.build());
+    }
     private boolean validateInputs() {
         if (etQty.getText().toString().trim().isEmpty()
                 || etPrice.getText().toString().trim().isEmpty()
@@ -258,4 +280,5 @@ public class CreateExpenseActivity extends AppCompatActivity {
             finish();
         });
     }
+
 }
