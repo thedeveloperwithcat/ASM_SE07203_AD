@@ -13,8 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.se07203_b5.Database.DatabaseHelper;
 import com.example.se07203_b5.R;
 import com.example.se07203_b5.Models.User;
+import com.example.se07203_b5.Utils.AppData;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     Button btnSubmitLogin, btnGoToRegister;
     EditText edtUsername, edtPassword;
     DatabaseHelper databaseHelper; // Khai báo sử dụng database Helper
@@ -46,18 +47,35 @@ public class MainActivity extends AppCompatActivity {
         btnSubmitLogin.setOnClickListener(v -> {
             String username = edtUsername.getText().toString();
             String password = edtPassword.getText().toString();
+
             try {
                 DatabaseHelper db = new DatabaseHelper(this);
                 User user = db.getUser(username, password);
-                if (user != null && user.getFullname() != null){
+
+                if (user != null && user.getFullname() != null) {
+
+                    // Lưu login state
                     sharedPreferencesEditor.putString("username", username);
                     sharedPreferencesEditor.putString("fullname", user.getFullname());
                     sharedPreferencesEditor.putLong("user_id", user.getId());
                     sharedPreferencesEditor.putBoolean("isLogin", true);
                     sharedPreferencesEditor.apply();
-                    Intent intent = new Intent(this, ExpenseActivity.class);
+
+                    // Load dữ liệu ngay sau đăng nhập
+                    AppData.ListItemExpense = db.getExpenseByUserId(user.getId());
+                    AppData.ListItemBudget = db.getBudgetByUserId(user.getId());
+
+                    // Chuyển sang `HomeActivity`
+                    Intent intent = new Intent(this, HomeActivity.class);
                     startActivity(intent);
+
+                    Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+                    finish();
+
+                } else {
+                    Toast.makeText(this, "Username or Password is incorrect", Toast.LENGTH_SHORT).show();
                 }
+
             } catch (Exception e) {
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
