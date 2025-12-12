@@ -1,254 +1,284 @@
 package com.example.se07203_b5.Activitys;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.se07203_b5.Database.DatabaseHelper;
+import com.example.se07203_b5.Models.Budget;
 import com.example.se07203_b5.Models.Expense;
 import com.example.se07203_b5.R;
 import com.example.se07203_b5.Utils.AppData;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 
 public class CreateExpenseActivity extends AppCompatActivity {
-    private Button btnSubmitCreate, btnBackToList;
-    private TextView titlePageCreateEdit;
-    private EditText edtItemName, edtQuantity, edtUnitPrice, edtCalendar;
-    private boolean isEditMode = false;
-    private int position = -1;
-    private SharedPreferences sharedPreferences;
-    private int selectedDay = -1, selectedMonth = -1, selectedYear = -1;
 
+    private EditText etQty, etPrice, etDate;
+    private TextView titlePage;
+    private Spinner spBudget;
+    private Button btnCreate, btnBackToList;
+    private long selectedDateMillis = System.currentTimeMillis();
+    private DatabaseHelper DBHelper;
+    private ArrayList<Budget> budgets;
+
+    private boolean isUpdate = false;
+    private Expense oldExpense;
+    private int position = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_expense);
 
-        initViews();
-        initSharedPref();
-        checkEditMode();
-        setupEvents();
+        DBHelper = new DatabaseHelper(this);
+
+        mappingViews();
+        loadBudgetSpinner();
+        detectUpdateMode();   // <--- NEW
+        setupDatePicker();
+        setupCreate();
+        setupEventBack();
     }
 
-    private void initViews() {
-        btnSubmitCreate = findViewById(R.id.btnSubmitCreate);
+    private void mappingViews() {
+        etQty   = findViewById(R.id.edtQuantity);
+        etPrice = findViewById(R.id.edtUnitPrice);
+        etDate  = findViewById(R.id.edtTime);
+        spBudget = findViewById(R.id.spBudget);
+        btnCreate = findViewById(R.id.btnSubmitCreate);
         btnBackToList = findViewById(R.id.btnBackToList);
-        edtItemName = findViewById(R.id.edtItemName);
-        edtQuantity = findViewById(R.id.edtQuantity);
-        edtUnitPrice = findViewById(R.id.edtUnitPrice);
-        edtCalendar = findViewById(R.id.edtCalender);
-        titlePageCreateEdit = findViewById(R.id.titlePageCreateEdit);
+        titlePage = findViewById(R.id.titlePageCreateEdit);
     }
 
-    private void initSharedPref() {
-        sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
-    }
+    // ===================== DETECT UPDATE MODE =====================
+    private void detectUpdateMode() {
+        if (getIntent().hasExtra("position") && budgets != null && !budgets.isEmpty()) {
+            isUpdate = true;
+            position = getIntent().getIntExtra("position", -1);
+            oldExpense = AppData.ListItemExpense.get(position);
 
-    private void checkEditMode() {
-        Intent intent = getIntent();
-        if (intent == null || intent.getExtras() == null) {
-            isEditMode = false;
-            return;
-        }
+            // Fill old data
+            etQty.setText(String.valueOf(oldExpense.getQuantity()));
+            etPrice.setText(String.valueOf(oldExpense.getUnitPrice()));
 
-        position = intent.getIntExtra("position", -1);
-
-        if (position > -1) {
-            isEditMode = true;
-            titlePageCreateEdit.setText("Update Expense");
-
-            Expense item = AppData.ListItemExpense.get(position);
-
-            edtItemName.setText(item.getName());
-            edtQuantity.setText(String.valueOf(item.getQuantity()));
-            edtUnitPrice.setText(String.valueOf(item.getUnitPrice()));
-
-            // ⭐ CHUYỂN TIMESTAMP → NGÀY ĐỂ HIỂN THỊ
-            long timestamp = item.getTimestamp();
             Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(timestamp);
+            cal.setTimeInMillis(oldExpense.getTimestamp());
+            selectedDateMillis = oldExpense.getTimestamp();
+            String show = cal.get(Calendar.DAY_OF_MONTH) + "/" +
+                    (cal.get(Calendar.MONTH) + 1) + "/" +
+                    cal.get(Calendar.YEAR);
+            etDate.setText(show);
 
-            selectedDay = cal.get(Calendar.DAY_OF_MONTH);
-            selectedMonth = cal.get(Calendar.MONTH) + 1;
-            selectedYear = cal.get(Calendar.YEAR);
+            titlePage.setText("Update Expense");
+            btnCreate.setText("Update");
 
-            edtCalendar.setText(
-                    selectedDay + "/" + selectedMonth + "/" + selectedYear
-            );
+            // Set budget spinner cũ và disable
+            for (int i = 0; i < budgets.size(); i++) {
+                if (budgets.get(i).getId() == oldExpense.getBudgetId()) {
+                    spBudget.setSelection(i + 1); // +1 vì hint
+                    break;
+                }
+            }
+            spBudget.setEnabled(false);
         }
     }
 
 
-    private void setupEvents() {
-        btnSubmitCreate.setOnClickListener(v -> {
-            if (isEditMode) editItem();
-            else createItem();
-        });
 
-        btnBackToList.setOnClickListener(v -> backToMain());
-        edtCalendar.setOnClickListener(v -> showDatePicker());
+    // ===================== LOAD SPINNER =====================
+    private void loadBudgetSpinner() {
+        budgets = AppData.ListItemBudget;
+        ArrayList<String> names = new ArrayList<>();
+
+        names.add("Select budget");
+        for (Budget b : budgets) names.add(b.getName());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                names
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spBudget.setAdapter(adapter);
+
+        if (isUpdate) {
+            // set đúng budget cũ
+            for (int i = 0; i < budgets.size(); i++) {
+                if (budgets.get(i).getId() == oldExpense.getBudgetId()) {
+                    spBudget.setSelection(i + 1);
+                    break;
+                }
+            }
+        } else {
+            spBudget.setSelection(0);
+        }
     }
 
-    private void showDatePicker() {
-        Calendar calendar = Calendar.getInstance();
+    // ===================== DATE PICKER =====================
+    private void setupDatePicker() {
+        etDate.setOnClickListener(v -> openDateDialog());
+    }
 
-        if (selectedYear != -1) {
-            calendar.set(selectedYear, selectedMonth - 1, selectedDay);
-        }
-
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH);
-        int year = calendar.get(Calendar.YEAR);
+    private void openDateDialog() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(selectedDateMillis);
 
         DatePickerDialog dialog = new DatePickerDialog(
                 this,
-                (view, y, m, d) -> {
-                    selectedDay = d;
-                    selectedMonth = m + 1;
-                    selectedYear = y;
+                (DatePicker view, int year, int monthOfYear, int dayOfMonth) -> {
+                    Calendar c = Calendar.getInstance();
+                    c.set(year, monthOfYear, dayOfMonth, 0, 0);
+                    c.set(Calendar.SECOND, 0);
+                    c.set(Calendar.MILLISECOND, 0);
 
-                    edtCalendar.setText(d + "/" + (m + 1) + "/" + y);
+                    selectedDateMillis = c.getTimeInMillis();
+
+                    String show = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
+                    etDate.setText(show);
                 },
-                year, month, day
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
         );
-
         dialog.show();
     }
 
+    // ===================== CREATE / UPDATE =====================
+    private void setupCreate() {
+        btnCreate.setOnClickListener(v -> {
 
-    private void backToMain() {
-        startActivity(new Intent(this, ExpenseActivity.class));
-        finish();
+            if (!validateInputs()) return;
+
+            int qty = Integer.parseInt(etQty.getText().toString().trim());
+            int price = Integer.parseInt(etPrice.getText().toString().trim());
+
+            if (spBudget.getSelectedItemPosition() == 0) {
+                Toast.makeText(this, "Please choose a budget!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Budget selectedBudget = budgets.get(spBudget.getSelectedItemPosition() - 1);
+            long userId = getSharedPreferences("AppData", MODE_PRIVATE).getLong("user_id", 0);
+
+            if (isUpdate) {
+                Expense updated = new Expense(
+                        oldExpense.getId(),        // 👈 gán id cũ
+                        selectedBudget.getName(),
+                        qty,
+                        price,
+                        selectedDateMillis,
+                        userId,
+                        oldExpense.getBudgetId()   // spinner đang frozen, nên giữ budget cũ
+                );
+
+                boolean ok = DBHelper.updateExpense(updated, oldExpense.getBudgetId(), userId);
+
+                if (!ok) {
+                    Toast.makeText(this, "Update failed! Check budget/time", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                AppData.ListItemExpense.clear();
+                AppData.ListItemExpense.addAll(DBHelper.getAllExpenses(userId));
+
+                Toast.makeText(this, "Updated successfully!", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+                finish();
+            }
+            else {
+                // ================== CREATE ==================
+                Expense newExpense = new Expense(
+                        selectedBudget.getName(),
+                        qty,
+                        price,
+                        selectedDateMillis,
+                        userId,
+                        selectedBudget.getId() // thêm budgetId
+                );
+                boolean ok = DBHelper.addExpense(newExpense, selectedBudget.getId(), userId);
+
+                if (!ok) {
+                    if (selectedDateMillis < selectedBudget.getStartTimestamp() ||
+                            selectedDateMillis > selectedBudget.getEndTimestamp()) {
+
+                        Toast.makeText(this, "Date not in budget time!", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, "Not enough budget!", Toast.LENGTH_LONG).show();
+                    }
+                    return;
+                } else {
+
+                    // Kiểm tra cảnh báo 80%
+                    float percent = DBHelper.getBudgetUsagePercentage(selectedBudget.getId()); // Hoặc newBudgetId nếu là update
+                    if (percent >= 80) {
+                        showBudgetWarningNotification(selectedBudget.getName(), percent);
+                    }
+                }
+
+                AppData.ListItemExpense.clear();
+                AppData.ListItemExpense.addAll(DBHelper.getAllExpenses(userId));
+
+                Toast.makeText(this, "Expense Added!", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
     }
+    private void showBudgetWarningNotification(String budgetName, float percent) {
+        android.app.NotificationManager manager = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelId = "budget_warning_channel";
 
-    private void editItem() {
-
-        if (!validateInput()) return;
-
-        DatabaseHelper db = new DatabaseHelper(this);
-
-        // Lấy expense cũ
-        Expense old = AppData.ListItemExpense.get(position);
-
-        // 1. Hoàn lại budget cũ
-        db.revertBudgetBeforeEdit(old);
-
-        // 2. Update dữ liệu mới
-        int quantity = Integer.parseInt(edtQuantity.getText().toString());
-        int unitPrice = Integer.parseInt(edtUnitPrice.getText().toString());
-
-        old.setName(edtItemName.getText().toString());
-        old.setQuantity(quantity);
-        old.setUnitPrice(unitPrice);
-
-        Calendar cal = Calendar.getInstance();
-        cal.set(selectedYear, selectedMonth - 1, selectedDay, 0, 0, 0);
-        old.setTimestamp(cal.getTimeInMillis());
-
-        // 3. Update vào SQLite
-        boolean result = db.updateProduct(old);
-        if (!result) {
-            Toast.makeText(this, "Update failed!", Toast.LENGTH_SHORT).show();
-            return;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            android.app.NotificationChannel channel = new android.app.NotificationChannel(channelId, "Budget Warnings", android.app.NotificationManager.IMPORTANCE_HIGH);
+            manager.createNotificationChannel(channel);
         }
+        androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Cảnh báo chi tiêu!")
+                .setContentText("Ngân sách '" + budgetName + "' đã dùng " + String.format("%.1f", percent) + "%. Sắp hết hạn mức!")
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH);
 
-        // 4. Trừ ngân sách mới
-        long userId = sharedPreferences.getLong("user_id", -1);
-        db.updateBudgetAfterExpense(old, userId);
-
-        // 5. Reload list & sort
-        AppData.ListItemExpense = db.getAllExpenses(userId);
-        Collections.sort(AppData.ListItemExpense, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
-
-        Toast.makeText(this, "Updated!", Toast.LENGTH_SHORT).show();
-        finish();
+        manager.notify((int) System.currentTimeMillis(), builder.build());
     }
+    private boolean validateInputs() {
+        if (etQty.getText().toString().trim().isEmpty()
+                || etPrice.getText().toString().trim().isEmpty()
+                || etDate.getText().toString().trim().isEmpty()) {
 
-
-
-    private void createItem() {
-
-        if (!validateInput()) return;
-
-        if (selectedYear == -1 || selectedMonth == -1 || selectedDay == -1) {
-            Toast.makeText(this, "Please select date of year!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String itemName = edtItemName.getText().toString();
-        int quantity = Integer.parseInt(edtQuantity.getText().toString());
-        int unitPrice = Integer.parseInt(edtUnitPrice.getText().toString());
-
-        Calendar cal = Calendar.getInstance();
-        cal.set(selectedYear, selectedMonth - 1, selectedDay, 0, 0, 0);
-        long timestamp = cal.getTimeInMillis();
-
-        Expense item = new Expense(itemName, quantity, unitPrice, timestamp);
-
-        DatabaseHelper db = new DatabaseHelper(this);
-        long userId = sharedPreferences.getLong("user_id", -1);
-
-        if (userId <= 0) {
-            Toast.makeText(this, "Error get userId", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        long productId = db.addProduct(item, userId);
-
-        if (productId <= 0) {
-            Toast.makeText(this, "Insert failed!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // GỌI HÀM UPDATE BUDGET bên DBHELPER
-        db.updateBudgetAfterExpense(item, userId);
-        AppData.ListItemExpense.add(item);
-
-        Toast.makeText(this, "Added!", Toast.LENGTH_SHORT).show();
-        backToMain();
-    }
-
-
-
-    private boolean validateInput() {
-
-        if (edtItemName.getText().toString().trim().isEmpty()) {
-            edtItemName.setError("Cannot be left blank");
+            Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         try {
-            int quantity = Integer.parseInt(edtQuantity.getText().toString());
-            int price = Integer.parseInt(edtUnitPrice.getText().toString());
-
-            if (quantity < 1) {
-                edtQuantity.setError("Quatity > 0");
-                return false;
-            }
-
-            if (price < 1) {
-                edtUnitPrice.setError("Unit price > 0");
-                return false;
-            }
-
+            Integer.parseInt(etQty.getText().toString().trim());
+            Integer.parseInt(etPrice.getText().toString().trim());
         } catch (Exception e) {
-            edtQuantity.setError("Error format");
-            edtUnitPrice.setError("Error format");
+            Toast.makeText(this, "Quantity & Price must be number!", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         return true;
     }
+
+    // ===================== BACK =====================
+    private void setupEventBack() {
+        btnBackToList.setOnClickListener(v -> {
+            startActivity(new Intent(this, ExpenseActivity.class));
+            finish();
+        });
+    }
+
 }

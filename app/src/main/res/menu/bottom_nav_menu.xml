@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/home_nav"
+        android:title="Home" />
+    <item
         android:id="@+id/nav_recurring"
         android:icon="@android:drawable/ic_input_add"
         android:title="Recurring" />
@@ -21,7 +25,8 @@
         android:title="Report" />
 
     <item
-        android:id="@+id/nav_logout"
+        android:id="@+id/nav_setting"
         android:icon="@drawable/settings_nav"
         android:title="Logout" />
+
 </menu>

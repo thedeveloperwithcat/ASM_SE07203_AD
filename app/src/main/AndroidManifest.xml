@@ -32,7 +32,7 @@
             android:name=".Activitys.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".Activitys.MainActivity"
+            android:name=".Activitys.HomeActivity"
             android:exported="false" />
         <activity
             android:name=".Activitys.CreateExpenseActivity"
