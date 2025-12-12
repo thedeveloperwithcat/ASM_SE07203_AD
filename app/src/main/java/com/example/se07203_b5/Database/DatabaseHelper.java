@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.example.se07203_b5.Models.Budget;
 import com.example.se07203_b5.Models.Expense;
+import com.example.se07203_b5.Models.RecurringExpense; // Đừng quên import Model mới
 import com.example.se07203_b5.Models.User;
 
 import java.util.ArrayList;
@@ -19,7 +20,9 @@ import java.util.Calendar;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SE07203Expense";
+
     private static final int DATABASE_VERSION = 24;
+
 
     // ==============================================
     // USER TABLE
@@ -53,6 +56,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String BUDGET_START_TIMESTAMP = "startTimestamp";
     public static final String BUDGET_END_TIMESTAMP = "endTimestamp";
 
+    // ==============================================
+    // (MỚI) RECURRING EXPENSE TABLE
+    // ==============================================
+    private static final String TABLE_RECURRING = "recurring_expenses";
+    private static final String REC_ID = "id";
+    private static final String REC_NAME = "name";
+    private static final String REC_AMOUNT = "amount";
+    private static final String REC_FREQUENCY = "frequency";
+    private static final String REC_NEXT_DUE = "next_due_date";
+
     public DatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -80,6 +93,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
 
 
+        // (MỚI) Tạo bảng Recurring Expenses
+        db.execSQL("CREATE TABLE " + TABLE_RECURRING + "("
+                + REC_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + REC_NAME + " TEXT, "
+                + REC_AMOUNT + " REAL, "
+                + REC_FREQUENCY + " TEXT, "
+                + REC_NEXT_DUE + " INTEGER);"
+        );
+
+
         db.execSQL("CREATE TABLE " + TABLE_EXPENSE + "("
                 + EXPENSE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + EXPENSE_NAME + " TEXT NOT NULL, "
@@ -94,6 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Log.d("DB", "Database created successfully!");
 
+
     }
 
     // ==============================================
@@ -104,13 +128,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPENSE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUDGET);
+
+        // (MỚI) Drop bảng Recurring nếu tồn tại
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECURRING);
+
         onCreate(db);
     }
 
 
     // ==============================================
-    // USER FUNCTIONS
+    // (MỚI) RECURRING EXPENSE FUNCTIONS
     // ==============================================
+
+    // Thêm mới khoản chi định kỳ
+    public boolean addRecurringExpense(RecurringExpense item) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues v = new ContentValues();
+
+        v.put(REC_NAME, item.getName());
+        v.put(REC_AMOUNT, item.getAmount());
+        v.put(REC_FREQUENCY, item.getFrequency());
+        v.put(REC_NEXT_DUE, item.getNextDueDate());
+
+        long result = db.insert(TABLE_RECURRING, null, v);
+        db.close();
+        return result != -1;
+    }
+
+    // Lấy danh sách tất cả khoản chi định kỳ
+    public ArrayList<RecurringExpense> getAllRecurringExpenses() {
+        ArrayList<RecurringExpense> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Sắp xếp theo ngày đến hạn tăng dần
+        Cursor cursor = db.query(TABLE_RECURRING, null, null, null, null, null, REC_NEXT_DUE + " ASC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(REC_ID));
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(REC_NAME));
+                double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(REC_AMOUNT));
+                String freq = cursor.getString(cursor.getColumnIndexOrThrow(REC_FREQUENCY));
+                long nextDue = cursor.getLong(cursor.getColumnIndexOrThrow(REC_NEXT_DUE));
+
+                list.add(new RecurringExpense(id, name, amount, freq, nextDue));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return list;
+    }
+
+    // ==============================================
+    // CÁC HÀM CŨ (USER, EXPENSE, BUDGET) GIỮ NGUYÊN
+    // ==============================================
+
     public long addUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues v = new ContentValues();
@@ -151,20 +223,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return user;
     }
 
-    public boolean isUsernameExists(String username) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id FROM users WHERE username = ?", new String[]{username});
-        boolean exists = cursor.getCount() > 0;
-        cursor.close();
-        db.close();
-        return exists;
-    }
+
+
+
+
+
 
 
     // ==============================================
     // EXPENSE FUNCTIONS
     // ==============================================
     public boolean addExpense(Expense e, int budgetId, long userId) {
+
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -302,9 +372,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
 
+
         db.close(); // đóng để check data trong inspector
         return list;
     }
+
 
     public ArrayList<Expense> getExpensesByMonth(long userId, int month, int year) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -346,6 +418,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //        db.close();
         return list;
     }
+
 
     public boolean updateExpense(Expense newExpense, int newBudgetId, long userId) {
 
@@ -505,9 +578,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(BUDGET_USER_ID, userId); // 👈 Thêm dòng này
 
         boolean ok = db.insert(TABLE_BUDGET, null, v) > 0;
+
         db.close();
         return ok;
     }
+
 
     public ArrayList<Budget> getBudgetByUserId(long userId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -545,6 +620,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return ok;
     }
+
 
     public ArrayList<Budget> getAllBudgets(long userId) {
         ArrayList<Budget> list = new ArrayList<>();
@@ -702,5 +778,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return ((float) totalSpent / originalTotal) * 100;
     }
 
-
+    public boolean isUsernameExists(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id FROM users WHERE username = ?", new String[]{username});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        db.close();
+        return exists;
+    }
 }
+

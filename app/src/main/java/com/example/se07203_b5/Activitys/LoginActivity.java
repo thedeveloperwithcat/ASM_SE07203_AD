@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                     // Lên lịch
                     scheduleWeeklyReport();
 
-                    Intent intent = new Intent(this, ExpenseActivity.class);
+                    Intent intent = new Intent(this, HomeActivity.class);
                     startActivity(intent);
                     Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
                     finish();
