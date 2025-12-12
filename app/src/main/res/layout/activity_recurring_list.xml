@@ -4,12 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F2F2F2">
+    android:background="#F8F9FA">
 
     <View
         android:id="@+id/viewHeaderBg"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="160dp"
         android:background="@color/recurring_primary"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -19,9 +19,10 @@
         android:layout_height="wrap_content"
         android:text="Recurring Expenses"
         android:textColor="@android:color/white"
-        android:textSize="20sp"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_margin="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -32,14 +33,14 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="20dp"
         app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
+        app:cardElevation="6dp"
         app:layout_constraintTop_toBottomOf="@id/tvPageTitle">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp"
+            android:padding="20dp"
             android:gravity="center">
 
             <TextView
@@ -54,33 +55,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0 đ"
-                android:textSize="32sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 android:textColor="@color/recurring_primary"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="6dp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvRecurringList"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:paddingBottom="80dp"
-        android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/cardSummary"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_input_add"
-        android:backgroundTint="@color/recurring_primary"
-        app:tint="@android:color/white"
-        android:layout_margin="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -90,4 +70,26 @@
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRecurringList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/cardSummary"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintVertical_bias="0.0"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/expense_nav"
+        android:backgroundTint="@color/recurring_primary"
+        app:tint="@android:color/white"
+        android:layout_margin="20dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

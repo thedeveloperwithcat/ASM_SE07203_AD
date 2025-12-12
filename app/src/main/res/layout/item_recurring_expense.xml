@@ -4,15 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginVertical="6dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    app:cardElevation="3dp"
     app:cardBackgroundColor="@android:color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <ImageView
             android:id="@+id/imgCategory"
@@ -20,35 +20,10 @@
             android:layout_height="48dp"
             android:src="@drawable/ic_launcher_foreground"
             android:background="@drawable/bg_circle_gray"
-            android:padding="8dp"
+            android:padding="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <TextView
-            android:id="@+id/tvName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Netflix Premium"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginStart="16dp"
-            app:layout_constraintStart_toEndOf="@id/imgCategory"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvAmount"/>
-
-        <TextView
-            android:id="@+id/tvFrequencyDate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Monthly • Due 20/10"
-            android:textSize="14sp"
-            android:textColor="#757575"
-            android:layout_marginTop="4dp"
-            app:layout_constraintStart_toStartOf="@id/tvName"
-            app:layout_constraintTop_toBottomOf="@id/tvName"
-            app:layout_constraintEnd_toEndOf="@id/tvName"/>
 
         <TextView
             android:id="@+id/tvAmount"
@@ -61,6 +36,36 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Netflix Premium"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            app:layout_constraintStart_toEndOf="@id/imgCategory"
+            app:layout_constraintEnd_toStartOf="@+id/tvAmount"
+            app:layout_constraintTop_toTopOf="@id/imgCategory"
+            app:layout_constraintBottom_toTopOf="@+id/tvFrequencyDate"
+            app:layout_constraintVertical_chainStyle="packed"/>
+
+        <TextView
+            android:id="@+id/tvFrequencyDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Monthly • Due 20/10"
+            android:textSize="13sp"
+            android:textColor="#757575"
+            app:layout_constraintStart_toStartOf="@id/tvName"
+            app:layout_constraintEnd_toEndOf="@id/tvName"
+            app:layout_constraintTop_toBottomOf="@id/tvName"
+            app:layout_constraintBottom_toBottomOf="@id/imgCategory"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
