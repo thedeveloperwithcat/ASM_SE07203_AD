@@ -1,7 +1,11 @@
 package com.example.se07203_b5.Activitys;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +36,8 @@ public class HomeActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private BarChart barChart;
     private PieChart pieChart;
+    private Button btnLogout;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);  // CHECK: Layout này phải chứa BottomNavigationView
 
         initViews();
+        setupEvents();
         setupBottomNav();
         loadBarChart();
         loadPieChart();
@@ -49,7 +56,8 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         barChart = findViewById(R.id.barChart);
         pieChart = findViewById(R.id.pieChart);
-
+        btnLogout = findViewById(R.id.btnLogout);
+        sharedPreferences = getSharedPreferences("AppData", MODE_PRIVATE);
     }
     private void setupBottomNav() {
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
@@ -153,6 +161,16 @@ public class HomeActivity extends AppCompatActivity {
         pieChart.invalidate();
     }
 
-
+    private void setupEvents() {
+        btnLogout.setOnClickListener(v -> {
+            SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+            sharedPreferencesEditor.putBoolean("isLogin", false);
+            sharedPreferencesEditor.apply();
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            Toast.makeText(this, "Logout successfully!", Toast.LENGTH_SHORT).show();
+        });
+    }
 
 }

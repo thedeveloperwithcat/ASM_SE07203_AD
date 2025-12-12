@@ -24,9 +24,5 @@
         android:icon="@drawable/report_nav"
         android:title="Report" />
 
-    <item
-        android:id="@+id/nav_setting"
-        android:icon="@drawable/settings_nav"
-        android:title="Logout" />
 
 </menu>

@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SE07203Expense";
 
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 29;
 
 
     // ==============================================
