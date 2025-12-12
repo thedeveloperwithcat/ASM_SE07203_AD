@@ -13,7 +13,7 @@ public class BottomNavHelper {
             int itemId = item.getItemId();
             Intent intent = null;
 
-            // KIỂM TRA ĐÚNG ID: nav_recurring
+
             if (itemId == R.id.nav_recurring && !(activity instanceof RecurringListActivity)) {
                 intent = new Intent(activity, RecurringListActivity.class);
             }
